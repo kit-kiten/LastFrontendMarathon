@@ -1,36 +1,24 @@
 function Calc(operator, a, b) {
+
     if (operator === undefined || a === undefined || b === undefined){
         return 'Error'
     }
 
     let result
 
-    switch (operator){
-        case 'sum':
-            result = a + b
-            break
-            
-        case 'subtr':
-            result = a - b
-            break
+    const operations = {
+        sum: a + b,
+        subtr: a - b,
+        multi: a * b,
+        div: a / b,
+        remOfDiv: a % b,
+        pow: a ** b
+    }
 
-        case 'multi':
-            result = a * b
-            break
-
-        case 'div':
-            result = a / b
-            break
-
-        case 'remOfDiv':
-            result = a % b
-            break
-
-        case 'pow':
-            result = a ** b
-            break
-        default:
-            return 'unknown operator'
+    if (operator in operations){
+        result = operations[operator]
+    } else{
+        return 'unknown operator'
     }
 
     if (result === result && typeof result == 'number'){
@@ -40,4 +28,4 @@ function Calc(operator, a, b) {
     return 'Error'
 }
 
-console.log(Calc('div', 4, 2))
+console.log(Calc('sum', '4', 2))
