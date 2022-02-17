@@ -125,5 +125,10 @@ zero.addEventListener('click', function (){
     const checkZero = result.textContent === '0'
     if (!checkZero){
         result.textContent += zero.textContent
+        if (!operator){
+            a += '0'
+        } else {
+            b += '0'
+        }
     }
 })
