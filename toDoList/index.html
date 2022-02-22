@@ -1,10 +1,79 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-$END$
+   <main class="main">
+       <div class="container">
+           <h2 class="main__title">high</h2>
+
+           <form>
+               <div class="main-new_task">
+                   <input class="main-new_task__text task-high__text" type="text" placeholder="Добавить важных дел">
+                   <input class="main-new_task__btn task-high__btn" type="button">
+               </div>
+               <div class="main-task">
+                   <div class="main-task__box">
+                       <span class="main-task__checkbox"></span>
+                   </div>
+                   <p class="main-task__text">
+                       Вот вам и супер интересная тема.
+                       Вы наверняка заметили что ваши файлы с кодом становятся все объемнее, что хочется вынести некоторые вещи куда-то за пределы основной программы.
+                   </p>
+                   <input class="main-task__btn" type="button">
+               </div>
+
+               <div class="main-task">
+                   <div class="main-task__box">
+                       <span class="main-task__checkbox"></span>
+                   </div>
+                   <p class="main-task__text">
+                       Сверстать этот TODO list
+                   </p>
+                   <input class="main-task__btn" type="button">
+               </div>
+
+               <div class="main-task--done">
+                   <div class="main-task__box">
+                       <span class="main-task__checkbox"></span>
+                   </div>
+                   <p class="main-task__text">
+                       Начать делать задачу
+                   </p>
+                   <input class="main-task__btn" type="button">
+               </div>
+           </form>
+
+           <h2 class="main__title">low</h2>
+
+           <form>
+               <div class="main-new_task">
+                   <input class="main-new_task__text task-low__text" type="text" placeholder="Добавить">
+                   <input class="main-new_task__btn task-low__btn" type="button">
+               </div>
+
+               <div class="main-task">
+                   <div class="main-task__box">
+                       <span class="main-task__checkbox"></span>
+                   </div>
+                   <p class="main-task__text">
+                       Посмотреть ютубчик
+                   </p>
+                   <input class="main-task__btn" type="button">
+               </div>
+           </form>
+       </div>
+   </main>
+
+   <script src="view.js"></script>
 </body>
 </html>

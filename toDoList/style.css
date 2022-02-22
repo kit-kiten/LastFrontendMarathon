@@ -1,0 +1,121 @@
+*{
+    box-sizing: border-box;
+}
+
+body{
+    background-color: #ffc0cb;
+}
+
+.main{
+    width: 476px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 25px 0;
+}
+
+.container{
+    max-width: 460px;
+    margin: 0 auto;
+}
+
+.main__title{
+    text-align: center;
+    text-transform: uppercase;
+    font-family: 'Roboto', sans-serif;
+    font-size: 18px;
+    color: #000000;
+    margin-bottom: 12px;
+    margin-top: 0;
+    line-height: 21px;
+}
+
+.main-new_task{
+    width: 460px;
+    min-height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #998899;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
+
+.main-new_task__text{
+    width: 403px;
+    border: none;
+    font-family: 'Roboto', sans-serif;
+    font-size: 18px;
+    color: #202020;
+    outline: none;
+}
+
+.main-new_task__text::placeholder{
+    color: #BBBBBB;
+}
+
+.main-new_task__btn{
+    width: 15px;
+    height: 15px;
+    background-image: url("./img/plus-icon.svg");
+    border: none;
+    background-position: center;
+    cursor: pointer;
+    background-color: inherit;
+}
+
+.main-task{
+    width: 460px;
+    min-height: 45px;
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #998899;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
+
+.main-task__checkbox{
+    width: 21px;
+    height: 21px;
+    background-image: url("./img/check-off.svg");
+    background-position: center;
+    position: absolute;
+    cursor: pointer;
+}
+
+.main-task__text{
+    width: 370px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 18px;
+    color: #202020;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-right: -16px;
+}
+
+.main-task__btn{
+    width: 15px;
+    height: 15px;
+    background-image: url("./img/close-icon.svg");
+    border: none;
+    background-position: center;
+    cursor: pointer;
+    background-color: inherit;
+}
+
+.main-task--done{
+    width: 460px;
+    min-height: 45px;
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #998899;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    background-color: #F4F4F4;
+}
+
+.main-task--done .main-task__checkbox{
+    background-image: url("./img/check-on.svg");
+}
