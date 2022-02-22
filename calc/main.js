@@ -1,3 +1,5 @@
+import {result, BUTTONS} from "./view.js";
+
 function Calc(operator, a, b) {
 
     if (operator === undefined || a === undefined || b === undefined){
@@ -7,10 +9,10 @@ function Calc(operator, a, b) {
     let result
 
     const operations = {
-        '+': +a + +b,
-        '-': +a - +b,
-        '×': +a * +b,
-        '÷': +a / +b
+        '+': Number(a) + Number(b),
+        '-': Number(a) - Number(b),
+        '×': Number(a) * Number(b),
+        '÷': Number((Number(a) / Number(b)).toFixed(5))
     }
 
     if (operator in operations){
@@ -26,21 +28,20 @@ function Calc(operator, a, b) {
     return 'Error'
 }
 
-const result = document.querySelector('.main-result')
-const numberList = document.querySelectorAll('.main-number')
-const del = document.querySelector('.main-del')
-const delFull = document.querySelector('.main-delete')
-const zero = document.querySelector('.main-zero')
-const operationList = document.querySelectorAll('.main-operation')
+function changeSize(size){
+    return result.style.fontSize = `${size}px`
+}
 
 let a = '', b = '', operator
 
-for (let number of numberList){
+for (let number of BUTTONS.numberList){
     number.addEventListener('click', function(){
-        if (result.textContent.length >= 6){
-            result.style.fontSize = '60px'
+        if (result.textContent.length >= 9){
+            changeSize(30)
+        } else if (result.textContent.length >= 5){
+            changeSize(60)
         } else{
-            result.style.fontSize = '96px'
+            changeSize(96)
         }
 
         if (result.textContent === '0'){
@@ -58,18 +59,21 @@ for (let number of numberList){
     })
 }
 
-for (let operation of operationList){
+for (let operation of BUTTONS.operationList){
     operation.addEventListener('click', function (){
-        if (result.textContent.length >= 6){
-            result.style.fontSize = '60px'
+        if (result.textContent.length >= 9){
+            changeSize(30)
+        } else if (result.textContent.length >= 5){
+            changeSize(60)
         } else{
-            result.style.fontSize = '96px'
+            changeSize(96)
         }
 
         if (!operator && operation.textContent !== '=') {
             result.textContent += operation.textContent
             operator = operation.textContent
         } else if(operation.textContent === '='){
+
             result.textContent = Calc(operator, a, b)
             a = Calc(operator, a, b)
             b = ''
@@ -78,16 +82,18 @@ for (let operation of operationList){
     })
 }
 
-del.addEventListener('click', function (){
-    if (result.textContent.length >= 6){
-        result.style.fontSize = '60px'
+BUTTONS.del.addEventListener('click', function (){
+    if (result.textContent.length >= 9){
+        changeSize(30)
+    } else if (result.textContent.length >= 5){
+        changeSize(60)
     } else{
-        result.style.fontSize = '96px'
+        changeSize(96)
     }
 
     let resultLength = result.textContent.length
 
-    for (let operation of operationList){
+    for (let operation of BUTTONS.operationList){
         if (operation.textContent === result.textContent[resultLength - 1]){
             operator = undefined
             break
@@ -106,8 +112,8 @@ del.addEventListener('click', function (){
     }
 })
 
-delFull.addEventListener('click', function (){
-     result.style.fontSize = '96px'
+BUTTONS.delFull.addEventListener('click', function (){
+     changeSize(96)
 
     result.textContent = '0'
     a = ''
@@ -115,16 +121,18 @@ delFull.addEventListener('click', function (){
     operator = undefined
 })
 
-zero.addEventListener('click', function (){
-    if (result.textContent.length >= 6){
-        result.style.fontSize = '60px'
+BUTTONS.zero.addEventListener('click', function (){
+    if (result.textContent.length >= 9){
+        changeSize(30)
+    } else if (result.textContent.length >= 5){
+        changeSize(60)
     } else{
-        result.style.fontSize = '96px'
+        changeSize(96)
     }
 
     const checkZero = result.textContent === '0'
     if (!checkZero){
-        result.textContent += zero.textContent
+        result.textContent += BUTTONS.zero.textContent
         if (!operator){
             a += '0'
         } else {
