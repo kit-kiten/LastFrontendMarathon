@@ -6,22 +6,26 @@ const highText = document.querySelector('.task-high__text')
 const lowForm = document.querySelector('.main-form__low')
 const lowText = document.querySelector('.task-low__text')
 
-highForm.addEventListener('submit', function (){
-    addTask(highText.value)
-    changePriority(highText.value, PRIORITIES.HIGH)
-    console.log(list)
+function formAction(text, form){
+    const isHighForm = form === highForm
+
+    addTask(text.value)
+
+    if (isHighForm){
+        changePriority(text.value, PRIORITIES.HIGH)
+    }
+    console.log(list) //Можно удалить
 
     let newTask = document.createElement('div')
     newTask.className = 'main-task'
     newTask.innerHTML = `<div class="main-task__box">
                    <span class="main-task__checkbox"></span>
                </div>
-               <p class="main-task__text">${highText.value}</p>
+               <p class="main-task__text">${text.value}</p>
                <input class="main-task__btn" type="button">`
 
-    highForm.after(newTask)
-
-    highText.value = ''
+    form.after(newTask)
+    text.value = ''
 
     let buttons = document.querySelectorAll('.main-task__btn')
 
@@ -36,8 +40,8 @@ highForm.addEventListener('submit', function (){
     let checkboxes = document.querySelectorAll('.main-task__checkbox')
 
     for (let checkbox of checkboxes){
-        checkbox.addEventListener('click', function (){
-            checkbox.parentElement.parentElement.classList.toggle('main-task--done')
+        checkbox.onclick = function (event){
+            event.currentTarget.parentElement.parentElement.classList.toggle('main-task--done')
             const taskName = checkbox.parentElement.nextElementSibling.textContent
             const task = list.find(item => item.name === taskName)
             if (task.status === STATUSES.TO_DO){
@@ -45,51 +49,16 @@ highForm.addEventListener('submit', function (){
             } else{
                 changeStatus(taskName, STATUSES.TO_DO)
             }
-            console.log(checkboxes)
-        })
+        }
     }
+}
+
+highForm.addEventListener('submit', function (){
+    formAction(highText, highForm)
 })
 
 lowForm.addEventListener('submit', function (){
-    addTask(lowText.value)
-    console.log(list)
-
-    let newTask = document.createElement('div')
-    newTask.className = 'main-task'
-    newTask.innerHTML = `<div class="main-task__box">
-                   <span class="main-task__checkbox"></span>
-               </div>
-               <p class="main-task__text">${lowText.value}</p>
-               <input class="main-task__btn" type="button">`
-
-    lowForm.after(newTask)
-
-    lowText.value = ''
-
-    let buttons = document.querySelectorAll('.main-task__btn')
-    for (let btn of buttons){
-        btn.addEventListener('click', function (){
-            const taskName = btn.previousElementSibling.textContent
-            deleteTask(taskName)
-            btn.parentElement.remove()
-        })
-    }
-
-    let checkboxes = document.querySelectorAll('.main-task__checkbox')
-
-    for (let checkbox of checkboxes){
-        checkbox.addEventListener('click', function (){
-            checkbox.parentElement.parentElement.classList.toggle('main-task--done')
-            const taskName = checkbox.parentElement.nextElementSibling.textContent
-            const task = list.find(item => item.name === taskName)
-            if (task.status === STATUSES.TO_DO){
-                changeStatus(taskName, STATUSES.DONE)
-            } else{
-                changeStatus(taskName, STATUSES.TO_DO)
-            }
-            console.log(list)
-        })
-    }
+    formAction(lowText, lowForm)
 })
 
 
