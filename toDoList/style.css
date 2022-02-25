@@ -11,6 +11,8 @@ body{
     margin: 0 auto;
     background-color: #ffffff;
     padding: 25px 0;
+    border: 1px solid #000000;
+    border-radius: 10px;
 }
 
 .container{
@@ -75,6 +77,10 @@ body{
     margin-bottom: 12px;
 }
 
+.main-task--done{
+    background-color: #F4F4F4;
+}
+
 .main-task__checkbox{
     width: 21px;
     height: 21px;
@@ -102,18 +108,6 @@ body{
     background-position: center;
     cursor: pointer;
     background-color: inherit;
-}
-
-.main-task--done{
-    width: 460px;
-    min-height: 45px;
-    display: flex;
-    justify-content: space-between;
-    border: 1px solid #998899;
-    padding: 12px;
-    border-radius: 6px;
-    margin-bottom: 12px;
-    background-color: #F4F4F4;
 }
 
 .main-task--done .main-task__checkbox{

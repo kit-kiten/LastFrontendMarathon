@@ -1,17 +1,17 @@
-const STATUSES = {
+export const STATUSES = {
     TO_DO: 'To Do',
     IN_PROGRESS: 'In Progress',
     DONE: 'Done'
 }
 
-const PRIORITIES = {
+export const PRIORITIES = {
     LOW: 'low',
     HIGH: 'high'
 }
 
-const list = []
+export const list = []
 
-function changeStatus(task, status) {
+export function changeStatus(task, status) {
     const checkTask = list.findIndex(item => item.name === task)
     const checkStatus = status === STATUSES.TO_DO || status === STATUSES.IN_PROGRESS || status === STATUSES.DONE
     if (checkTask !== -1 && checkStatus) {
@@ -19,7 +19,7 @@ function changeStatus(task, status) {
     }
 }
 
-function changePriority(task, priority) {
+export function changePriority(task, priority) {
     const checkTask = list.findIndex(item => item.name === task)
     const checkPriority = priority === PRIORITIES.LOW || priority === PRIORITIES.HIGH
     if (checkTask !== -1 && checkPriority) {
@@ -27,7 +27,7 @@ function changePriority(task, priority) {
     }
 }
 
-function addTask(task) {
+export function addTask(task) {
     list.push({
         'name': task,
         'status': STATUSES.TO_DO,
@@ -35,7 +35,7 @@ function addTask(task) {
     })
 }
 
-function deleteTask(task) {
+export function deleteTask(task) {
     let indexTask = list.findIndex(item => item.name === task)
     if (indexTask !== -1) {
         list.splice(indexTask, 1)
@@ -71,11 +71,3 @@ function showBy(whatShow) {
     }
 
 }
-
-addTask('First task')
-addTask('Second task')
-addTask('Third task')
-changeStatus('Third task', 'Done')
-
-showBy('status')
-showBy('priority')
