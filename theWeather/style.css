@@ -11,14 +11,18 @@ ul {
 }
 
 body{
-    background-color: #ffa799;
+    background: linear-gradient(45deg, #ffa799, #C5DDE8, #fff599);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .container{
     max-width: 621px;
-    margin: 15px auto;
     padding: 10px;
-    background-color: #CCCCFF;
+    background-color: #8b00ff;
+    border-radius: 5px;
 }
 
 .search-form{
@@ -167,6 +171,10 @@ body{
     height: 24px;
     border: none;
     cursor: pointer;
+}
+
+.weather-now__btn--active{
+    background: url("./img/heart_red.svg");
 }
 
 .weather-details{
