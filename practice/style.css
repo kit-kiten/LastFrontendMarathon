@@ -1,0 +1,24 @@
+*{
+    box-sizing: border-box;
+}
+
+.container{
+    margin: 0 auto;
+    max-width: 750px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.main-input,
+.main-btn{
+    width: 325px;
+}
+
+.main-input{
+    margin-bottom: 25px;
+}
+
+.main-btn{
+    cursor: pointer;
+}
