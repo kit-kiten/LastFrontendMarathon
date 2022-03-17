@@ -58,7 +58,6 @@ function changeForecastInformation(json){
         10: 'October',
         11: 'November',
         12: 'December'}
-
     const forecastItems = document.querySelectorAll('.weather-forecast__list-item')
 
     for (let forecastItem of forecastItems){
