@@ -153,7 +153,6 @@ UI_ELEMENTS.FORM_SEARCH.addEventListener('submit', () => {
     changeForecastInformation(jsonForecast)
 
     UI_ELEMENTS.HEART_BTN.classList.remove('weather-now__btn--active')
-    console.log(jsonForecast)
 })
 
 UI_ELEMENTS.HEART_BTN.addEventListener('click', () => {
