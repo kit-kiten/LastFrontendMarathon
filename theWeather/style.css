@@ -78,6 +78,14 @@ body{
 
 .city-list{
     padding: 35px 18px;
+    height: 322px;
+    overflow: scroll;
+}
+
+.city-list__item{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .city-list__item + .city-list__item{
@@ -90,6 +98,16 @@ body{
     background-color: inherit;
     border: none;
     padding: 0;
+    cursor: pointer;
+}
+
+.city-list__item-close{
+    width: 17px;
+    height: 16px;
+    background-image: url("./img/close-icon.svg");
+    background-position: center;
+    background-color: inherit;
+    border: none;
     cursor: pointer;
 }
 
@@ -180,7 +198,6 @@ body{
 .weather-details{
     height: 345px;
     padding: 33px 17px 46px;
-    display: flex;
     flex-direction: column;
     display: none;
 }
@@ -239,15 +256,9 @@ body{
     margin-bottom: 7px;
 }
 
-.weather-forecast::-webkit-scrollbar {width: 0! important}
+.weather-forecast::-webkit-scrollbar,
+.city-list::-webkit-scrollbar{width: 0! important}
 
-/*.main-tabs__block:target{*/
-/*    display: block;*/
-/*}*/
-
-/*.weather-now:target{*/
-/*    display: flex;*/
-/*}*/
 
 .main-tabs__block--active{
     display: flex;

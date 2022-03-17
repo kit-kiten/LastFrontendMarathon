@@ -1,7 +1,10 @@
 import {UI_ELEMENTS} from "./view.mjs"
 
-const serverUrl = 'https://api.openweathermap.org/data/2.5/weather'
-const apiKey = 'f660a2fb1e4bad108d6160b7f58c555f'
+const SERVER_URL = 'https://api.openweathermap.org/data/2.5/'
+const PAGE_WEATHER = 'weather'
+const PAGE_FORECAST = 'forecast'
+const API_KEY = '1041b355b3b6422eb66d9f5e517f7b52'
+const CITIES_LIST = []
 
 function getCelsius(temperature){
     return (temperature - 273).toFixed(0)
@@ -12,38 +15,165 @@ function DeleteActiveClassesTabs(){
     UI_ELEMENTS.TABS_BUTTONS.forEach(tabBtn => tabBtn.classList.remove('main-tabs__item--active'))
 }
 
+function AddActiveClassesTabs(currentTab, tabBtn){
+    currentTab.classList.add('main-tabs__block--active')
+    tabBtn.classList.add('main-tabs__item--active')
+}
+
+function getResponse(cityName, page){
+    const url = `${SERVER_URL + page}?q=${cityName}&appid=${API_KEY}`
+    return fetch(url).then(response => response.json())
+}
+
+function changeCityTitles(json){
+    UI_ELEMENTS.CITY_TITLES.forEach(cityTitle => {
+        json.then(result => cityTitle.textContent = result.name)
+    })
+}
+
+function changeWeatherInformation(json){
+    json.then(result => {
+        const sunriseTime = new Date(result.sys.sunrise * 1000)
+        const sunsetTime = new Date(result.sys.sunset * 1000)
+
+        UI_ELEMENTS.TEMPERATURE_NOW.textContent = getCelsius(result.main.temp) + '°'
+        UI_ELEMENTS.TEMPERATURE_DETAILS.textContent = `Temperature: ${getCelsius(result.main.temp)}°`
+        UI_ELEMENTS.TEMPERATURE_DETAILS_FEELS.textContent = `Feels like: ${getCelsius(result.main.feels_like)}°`
+        UI_ELEMENTS.WEATHER.textContent = `Weather: ${result.weather[0].main}`
+        UI_ELEMENTS.SUNRISE.textContent = `Sunrise: ${sunriseTime.getHours()}:${sunriseTime.getMinutes()}`
+        UI_ELEMENTS.SUNSET.textContent = `Sunset: ${sunsetTime.getHours()}:${sunsetTime.getMinutes()}`
+    }).catch(() => alert('Error'))
+}
+
+function changeForecastInformation(json){
+    json.then(result => {
+        const months = {1: 'January',
+            2: 'February',
+            3: 'March',
+            4: 'April',
+            5: 'May',
+            6: 'June',
+            7: 'July',
+            8: 'August',
+            9: 'September',
+            10: 'October',
+            11: 'November',
+            12: 'December'}
+
+        for (let item of result.list){
+            const date = item.dt_txt.split(' ')[0].split('-')
+            const day = date[2]
+            const monthNumber = Number(date[1])
+
+            const time = item.dt_txt.split(' ')[1].split(':')
+            const hours = time[0]
+            const minutes = time[1]
+
+            const li = document.createElement('li')
+
+            li.className = 'weather-forecast__list-item'
+            li.innerHTML = `<div class="weather-forecast__top">
+                                        <p class="weather-forecast__text">
+                                            ${day} ${months[monthNumber]}
+                                        </p>
+                                        <p class="weather-forecast__text">
+                                            ${hours}:${minutes}
+                                        </p>
+                                    </div>
+                                    <div class="weather-forecast__bottom">
+                                        <div class="weather-forecast__parameters">
+                                            <p class="weather-forecast__text">
+                                                Temperature: ${getCelsius(item.main.temp)}°
+                                            </p>
+                                            <p class="weather-forecast__text">
+                                                Feels like: ${getCelsius(item.main.feels_like)}°
+                                            </p>
+                                        </div>
+                                        <div class="weather-forecast__precipitation">
+                                            <p class="weather-forecast__text">
+                                                ${item.weather[0].main}
+                                            </p>
+                                            <img src="./img/rain.png" alt="weather icon" class="weather-forecast__img">
+                                        </div>
+                                    </div>`
+            UI_ELEMENTS.FORECAST_BLOCK.append(li)
+        }
+    })
+}
+
+function createCityElement(cityName){
+    const li = document.createElement('li')
+
+    li.className = 'city-list__item'
+    li.innerHTML = `<button class="city-list__item-btn">${cityName}</button>
+                            <button class="city-list__item-close"></button>`
+    UI_ELEMENTS.CITY_BLOCK.append(li)
+
+    CITIES_LIST.push(cityName)
+}
+
+function addEventListenersUIElements(){
+    const closeButtons = document.querySelectorAll('.city-list__item-close')
+    for (let closeBtn of closeButtons){
+        closeBtn.addEventListener('click', () => {
+            const cityName = closeBtn.previousElementSibling.textContent
+            const indexCityName = CITIES_LIST.findIndex(item => item === cityName)
+
+            if (indexCityName !== -1) {
+                CITIES_LIST.splice(indexCityName, 1)
+            }
+
+            closeBtn.parentElement.remove()
+        })
+    }
+
+    const openCityButtons = document.querySelectorAll('.city-list__item-btn')
+    for (let openCityBtn of openCityButtons){
+        openCityBtn.addEventListener('click', () => {
+            const cityName = openCityBtn.textContent
+            const jsonWeather = getResponse(cityName, PAGE_WEATHER)
+            const jsonForecast = getResponse(cityName, PAGE_FORECAST)
+
+            changeCityTitles(jsonWeather)
+            changeWeatherInformation(jsonWeather)
+            changeForecastInformation(jsonForecast)
+
+            UI_ELEMENTS.HEART_BTN.classList.add('weather-now__btn--active')
+        })
+    }
+}
+
+UI_ELEMENTS.FORM_SEARCH.addEventListener('submit', () => {
+    const cityName = UI_ELEMENTS.INPUT_SEARCH.value
+    const jsonWeather = getResponse(cityName, PAGE_WEATHER)
+    const jsonForecast = getResponse(cityName, PAGE_FORECAST)
+
+    changeCityTitles(jsonWeather)
+    changeWeatherInformation(jsonWeather)
+    changeForecastInformation(jsonForecast)
+
+    UI_ELEMENTS.HEART_BTN.classList.remove('weather-now__btn--active')
+    console.log(jsonForecast)
+})
+
+UI_ELEMENTS.HEART_BTN.addEventListener('click', () => {
+    const isNotActiveClass = UI_ELEMENTS.HEART_BTN.className !== 'weather-now__btn weather-now__btn--active'
+    const cityName = UI_ELEMENTS.HEART_BTN.previousElementSibling.textContent
+
+    if (isNotActiveClass){
+        createCityElement(cityName)
+        addEventListenersUIElements()
+
+        UI_ELEMENTS.HEART_BTN.classList.add('weather-now__btn--active')
+    }
+})
+
 for (let tabBtn of UI_ELEMENTS.TABS_BUTTONS){
     tabBtn.addEventListener('click', () => {
         const idForTab = tabBtn.getAttribute('href')
         const currentTab = document.querySelector(idForTab)
 
         DeleteActiveClassesTabs()
-
-        currentTab.classList.add('main-tabs__block--active')
-        tabBtn.classList.add('main-tabs__item--active')
+        AddActiveClassesTabs(currentTab, tabBtn)
     })
 }
-
-UI_ELEMENTS.FORM_SEARCH.addEventListener('submit', () => {
-    const cityName = UI_ELEMENTS.INPUT_SEARCH.value
-    const url = `${serverUrl}?q=${cityName}&appid=${apiKey}`
-
-    const json = fetch(url).then(response => response.json())
-
-    UI_ELEMENTS.WEATHER_TITLES.forEach(weatherTitle => {
-        json.then(result => weatherTitle.textContent = result.name)
-    })
-
-    json.then(result => UI_ELEMENTS.WEATHER_TEMPERATURE.textContent = getCelsius(result.main.temp) + '°')
-})
-
-UI_ELEMENTS.HEART_BTN.addEventListener('click', () => {
-    const isActiveClass = UI_ELEMENTS.HEART_BTN.className === 'weather-now__btn weather-now__btn--active'
-
-    if (isActiveClass){
-        UI_ELEMENTS.HEART_BTN.classList.remove('weather-now__btn--active')
-    } else {
-        UI_ELEMENTS.HEART_BTN.classList.add('weather-now__btn--active')
-    }
-
-})
