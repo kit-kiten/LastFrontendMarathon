@@ -46,20 +46,26 @@ function changeWeatherInformation(json){
 }
 
 function changeForecastInformation(json){
-    json.then(result => {
-        const months = {1: 'January',
-            2: 'February',
-            3: 'March',
-            4: 'April',
-            5: 'May',
-            6: 'June',
-            7: 'July',
-            8: 'August',
-            9: 'September',
-            10: 'October',
-            11: 'November',
-            12: 'December'}
+    const months = {1: 'January',
+        2: 'February',
+        3: 'March',
+        4: 'April',
+        5: 'May',
+        6: 'June',
+        7: 'July',
+        8: 'August',
+        9: 'September',
+        10: 'October',
+        11: 'November',
+        12: 'December'}
 
+    const forecastItems = document.querySelectorAll('.weather-forecast__list-item')
+
+    for (let forecastItem of forecastItems){
+        forecastItem.remove()
+    }
+
+    json.then(result => {
         for (let item of result.list){
             const date = item.dt_txt.split(' ')[0].split('-')
             const day = date[2]
