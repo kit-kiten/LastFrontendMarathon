@@ -3,7 +3,7 @@ import {UI_ELEMENTS} from "./view.mjs"
 const SERVER_URL = 'https://api.openweathermap.org/data/2.5/'
 const PAGE_WEATHER = 'weather'
 const PAGE_FORECAST = 'forecast'
-const API_KEY = '1041b355b3b6422eb66d9f5e517f7b52'
+const API_KEY = 'f660a2fb1e4bad108d6160b7f58c555f'
 const CITIES_LIST = []
 
 function getCelsius(temperature){
