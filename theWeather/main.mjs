@@ -1,10 +1,12 @@
 import {UI_ELEMENTS} from "./view.mjs"
+import {storage} from "./storage.mjs";
 
 const SERVER_URL = 'https://api.openweathermap.org/data/2.5/'
 const PAGE_WEATHER = 'weather'
 const PAGE_FORECAST = 'forecast'
 const API_KEY = 'f660a2fb1e4bad108d6160b7f58c555f'
-const CITIES_LIST = []
+
+storage.createCitiesList()
 
 function getCelsius(temperature){
     return (temperature - 273).toFixed(0)
@@ -114,7 +116,7 @@ function createCityElement(cityName){
                             <button class="city-list__item-close"></button>`
     UI_ELEMENTS.CITY_BLOCK.append(li)
 
-    CITIES_LIST.push(cityName)
+    storage.saveFavoriteCities(cityName)
 }
 
 function addEventListenersUIElements(){
@@ -122,12 +124,8 @@ function addEventListenersUIElements(){
     for (let closeBtn of closeButtons){
         closeBtn.addEventListener('click', () => {
             const cityName = closeBtn.previousElementSibling.textContent
-            const indexCityName = CITIES_LIST.findIndex(item => item === cityName)
 
-            if (indexCityName !== -1) {
-                CITIES_LIST.splice(indexCityName, 1)
-            }
-
+            storage.deleteFavoriteCity(cityName)
             closeBtn.parentElement.remove()
         })
     }
@@ -179,5 +177,13 @@ for (let tabBtn of UI_ELEMENTS.TABS_BUTTONS){
 
         DeleteActiveClassesTabs()
         AddActiveClassesTabs(currentTab, tabBtn)
+    })
+}
+
+window.onload = () => {
+    const favoriteCities = storage.getFavoriteCities()
+    favoriteCities.forEach(favoriteCity => {
+        createCityElement(favoriteCity)
+        addEventListenersUIElements()
     })
 }
