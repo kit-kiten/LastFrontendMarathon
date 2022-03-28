@@ -6,7 +6,7 @@ const PAGE_WEATHER = 'weather'
 const PAGE_FORECAST = 'forecast'
 const API_KEY = 'f660a2fb1e4bad108d6160b7f58c555f'
 
-storage.createCitiesList()
+storage.createCitiesListAndDefaultCity()
 
 function getCelsius(temperature){
     return (temperature - 273).toFixed(0)
@@ -44,6 +44,8 @@ function changeWeatherInformation(json){
         UI_ELEMENTS.WEATHER.textContent = `Weather: ${result.weather[0].main}`
         UI_ELEMENTS.SUNRISE.textContent = `Sunrise: ${sunriseTime.getHours()}:${sunriseTime.getMinutes()}`
         UI_ELEMENTS.SUNSET.textContent = `Sunset: ${sunsetTime.getHours()}:${sunsetTime.getMinutes()}`
+
+        checkFavoriteCity(result.name)
     }).catch(() => alert('Error'))
 }
 
@@ -115,8 +117,6 @@ function createCityElement(cityName){
     li.innerHTML = `<button class="city-list__item-btn">${cityName}</button>
                             <button class="city-list__item-close"></button>`
     UI_ELEMENTS.CITY_BLOCK.append(li)
-
-    storage.saveFavoriteCities(cityName)
 }
 
 function addEventListenersUIElements(){
@@ -140,9 +140,20 @@ function addEventListenersUIElements(){
             changeCityTitles(jsonWeather)
             changeWeatherInformation(jsonWeather)
             changeForecastInformation(jsonForecast)
+            storage.changeCurrentCity(cityName)
 
             UI_ELEMENTS.HEART_BTN.classList.add('weather-now__btn--active')
         })
+    }
+}
+
+function checkFavoriteCity(cityName) {
+    const getFavoriteCities = storage.getFavoriteCities()
+
+    if (getFavoriteCities.has(cityName)){
+        UI_ELEMENTS.HEART_BTN.classList.add('weather-now__btn--active')
+    } else{
+        UI_ELEMENTS.HEART_BTN.classList.remove('weather-now__btn--active')
     }
 }
 
@@ -151,11 +162,11 @@ UI_ELEMENTS.FORM_SEARCH.addEventListener('submit', () => {
     const jsonWeather = getResponse(cityName, PAGE_WEATHER)
     const jsonForecast = getResponse(cityName, PAGE_FORECAST)
 
+
     changeCityTitles(jsonWeather)
     changeWeatherInformation(jsonWeather)
     changeForecastInformation(jsonForecast)
-
-    UI_ELEMENTS.HEART_BTN.classList.remove('weather-now__btn--active')
+    storage.changeCurrentCity(cityName)
 })
 
 UI_ELEMENTS.HEART_BTN.addEventListener('click', () => {
@@ -164,6 +175,7 @@ UI_ELEMENTS.HEART_BTN.addEventListener('click', () => {
 
     if (isNotActiveClass){
         createCityElement(cityName)
+        storage.saveFavoriteCities(cityName)
         addEventListenersUIElements()
 
         UI_ELEMENTS.HEART_BTN.classList.add('weather-now__btn--active')
@@ -182,8 +194,20 @@ for (let tabBtn of UI_ELEMENTS.TABS_BUTTONS){
 
 window.onload = () => {
     const favoriteCities = storage.getFavoriteCities()
+    const currentCity = storage.getCurrentCity()
+    const jsonWeather = getResponse(currentCity, PAGE_WEATHER)
+    const jsonForecast = getResponse(currentCity, PAGE_FORECAST)
+
     favoriteCities.forEach(favoriteCity => {
         createCityElement(favoriteCity)
         addEventListenersUIElements()
+
+        if (favoriteCity === currentCity){
+            UI_ELEMENTS.HEART_BTN.classList.add('weather-now__btn--active')
+        }
     })
+
+    changeCityTitles(jsonWeather)
+    changeWeatherInformation(jsonWeather)
+    changeForecastInformation(jsonForecast)
 }

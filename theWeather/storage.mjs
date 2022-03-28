@@ -1,29 +1,38 @@
 export const storage = {
-    createCitiesList : () => {
-        if (localStorage.getItem('citiesList') === null){
-            localStorage.setItem('citiesList', JSON.stringify([]))
+    createCitiesListAndDefaultCity : () => {
+        if (JSON.parse(localStorage.getItem('citiesList')) === null){
+            const favoriteCities = new Set()
+            localStorage.setItem('citiesList', JSON.stringify([...favoriteCities]))
+        }
+        if (JSON.parse(localStorage.getItem('currentCity')) === null){
+            localStorage.setItem('currentCity', JSON.stringify('Vladivostok'))
         }
     },
 
     saveFavoriteCities : (cityName) => {
-        const favoriteCities = JSON.parse(localStorage.getItem('citiesList'))
+        const favoriteCities = new Set(JSON.parse(localStorage.getItem('citiesList')))
 
-        favoriteCities.push(cityName)
-        localStorage.setItem('citiesList', JSON.stringify(favoriteCities))
+        favoriteCities.add(cityName)
+        console.log(favoriteCities)
+        localStorage.setItem('citiesList', JSON.stringify([...favoriteCities]))
     },
 
     deleteFavoriteCity : (cityName) => {
-        const favoriteCities = JSON.parse(localStorage.getItem('citiesList'))
-        const indexCityName = favoriteCities.findIndex(item => item === cityName)
+        const favoriteCities = new Set(JSON.parse(localStorage.getItem('citiesList')))
+        favoriteCities.delete(cityName)
 
-        if (indexCityName !== -1) {
-            favoriteCities.splice(indexCityName, 1)
-        }
-
-        localStorage.setItem('citiesList', JSON.stringify(favoriteCities))
+        localStorage.setItem('citiesList', JSON.stringify([...favoriteCities]))
     },
 
     getFavoriteCities : () => {
-        return JSON.parse(localStorage.getItem('citiesList'))
+        return new Set(JSON.parse(localStorage.getItem('citiesList')))
+    },
+
+    changeCurrentCity : (cityName) => {
+        localStorage.setItem('currentCity', JSON.stringify(cityName))
+    },
+
+    getCurrentCity : () => {
+        return JSON.parse(localStorage.getItem('currentCity'))
     }
 }
