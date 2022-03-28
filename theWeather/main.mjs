@@ -127,6 +127,7 @@ function addEventListenersUIElements(){
 
             storage.deleteFavoriteCity(cityName)
             closeBtn.parentElement.remove()
+            checkFavoriteCity(cityName)
         })
     }
 
