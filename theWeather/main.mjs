@@ -1,5 +1,6 @@
 import {UI_ELEMENTS} from "./view.mjs"
 import {storage} from "./storage.mjs";
+import { compareAsc, format } from 'date-fns'
 
 const SERVER_URL = 'https://api.openweathermap.org/data/2.5/'
 const PAGE_WEATHER = 'weather'
@@ -50,18 +51,6 @@ function changeWeatherInformation(json){
 }
 
 function changeForecastInformation(json){
-    const months = {1: 'January',
-        2: 'February',
-        3: 'March',
-        4: 'April',
-        5: 'May',
-        6: 'June',
-        7: 'July',
-        8: 'August',
-        9: 'September',
-        10: 'October',
-        11: 'November',
-        12: 'December'}
     const forecastItems = document.querySelectorAll('.weather-forecast__list-item')
 
     for (let forecastItem of forecastItems){
@@ -70,24 +59,13 @@ function changeForecastInformation(json){
 
     json.then(result => {
         for (let item of result.list){
-            const date = item.dt_txt.split(' ')[0].split('-')
-            const day = date[2]
-            const monthNumber = Number(date[1])
-
-            const time = item.dt_txt.split(' ')[1].split(':')
-            const hours = time[0]
-            const minutes = time[1]
-
+            const date = new Date(item.dt * 1000)
             const li = document.createElement('li')
 
             li.className = 'weather-forecast__list-item'
             li.innerHTML = `<div class="weather-forecast__top">
-                                        <p class="weather-forecast__text">
-                                            ${day} ${months[monthNumber]}
-                                        </p>
-                                        <p class="weather-forecast__text">
-                                            ${hours}:${minutes}
-                                        </p>
+                                        <p class="weather-forecast__text">${format(date, 'd MMMM')}</p>
+                                        <p class="weather-forecast__text">${format(date, 'HH:mm')}</p>
                                     </div>
                                     <div class="weather-forecast__bottom">
                                         <div class="weather-forecast__parameters">
@@ -102,7 +80,6 @@ function changeForecastInformation(json){
                                             <p class="weather-forecast__text">
                                                 ${item.weather[0].main}
                                             </p>
-                                            <img src="./img/rain.png" alt="weather icon" class="weather-forecast__img">
                                         </div>
                                     </div>`
             UI_ELEMENTS.FORECAST_BLOCK.append(li)
@@ -162,7 +139,6 @@ UI_ELEMENTS.FORM_SEARCH.addEventListener('submit', () => {
     const cityName = UI_ELEMENTS.INPUT_SEARCH.value
     const jsonWeather = getResponse(cityName, PAGE_WEATHER)
     const jsonForecast = getResponse(cityName, PAGE_FORECAST)
-
 
     changeCityTitles(jsonWeather)
     changeWeatherInformation(jsonWeather)

@@ -9,65 +9,65 @@ export const PRIORITIES = {
     HIGH: 'high'
 }
 
-export const list = []
-
-export function changeStatus(task, status) {
-    const checkTask = list.findIndex(item => item.name === task)
-    const checkStatus = status === STATUSES.TO_DO || status === STATUSES.IN_PROGRESS || status === STATUSES.DONE
-    if (checkTask !== -1 && checkStatus) {
-        list.find(item => item.name === task).status = status
-    }
+function CreateTask(task){
+    this.name = task
+    this.status = STATUSES.TO_DO
+    this.priority = PRIORITIES.LOW
 }
 
-export function changePriority(task, priority) {
-    const checkTask = list.findIndex(item => item.name === task)
-    const checkPriority = priority === PRIORITIES.LOW || priority === PRIORITIES.HIGH
-    if (checkTask !== -1 && checkPriority) {
-        list.find(item => item.name === task).priority = priority
-    }
-}
-
-export function addTask(task) {
-    list.push({
-        'name': task,
-        'status': STATUSES.TO_DO,
-        'priority': PRIORITIES.LOW
-    })
-}
-
-export function deleteTask(task) {
-    let indexTask = list.findIndex(item => item.name === task)
-    if (indexTask !== -1) {
-        list.splice(indexTask, 1)
-    }
-}
-
-function showBy(whatShow) {
-    if (whatShow === 'status') {
-        let toDo = '', inProgress = '', done = ''
-        for (let task of list) {
-            if (task.status === STATUSES.TO_DO) {
-                toDo += `\n "${task.name}",`
-            } else if (task.status === STATUSES.IN_PROGRESS) {
-                inProgress += `\n "${task.name}",`
-            } else {
-                done += `\n "${task.name}",`
-            }
+export const storage = {
+    createList: () => {
+        if (JSON.parse(localStorage.getItem('list')) === null){
+            const list = []
+            localStorage.setItem('list', JSON.stringify(list))
         }
-        console.log(`Todo:${toDo || '\n -'}`)
-        console.log(`In Progress:${inProgress || '\n -'}`)
-        console.log(`Done:${done || '\n -'}`)
-    } else if (whatShow === 'priority') {
-        let low = '', high = ''
-        for (let task of list) {
-            if (task.priority === PRIORITIES.LOW) {
-                low += `\n "${task.name}",`
-            } else if (task.priority === PRIORITIES.HIGH) {
-                high += `\n "${task.name}",`
-            }
-        }
-        console.log(`low:${low || '\n -'}`)
-        console.log(`high:${high || '\n -'}`)
-    }
+    },
 
+    changeStatus: (task, status) => {
+        const list = JSON.parse(localStorage.getItem('list'))
+        const checkStatus = status === STATUSES.TO_DO || status === STATUSES.IN_PROGRESS || status === STATUSES.DONE
+        const checkTask = list.find(item => item.name === task)
+
+        if (checkTask && checkStatus) {
+            list.find(item => item.name === task).status = status
+        }
+
+        localStorage.setItem('list', JSON.stringify(list))
+    },
+
+    changePriority: (task, priority) => {
+        const list = JSON.parse(localStorage.getItem('list'))
+        const checkPriority = priority === PRIORITIES.LOW || priority === PRIORITIES.HIGH
+        const checkTask = list.find(item => item.name === task)
+
+        if (checkTask && checkPriority) {
+            list.find(item => item.name === task).priority = priority
+        }
+
+        localStorage.setItem('list', JSON.stringify(list))
+    },
+
+    addTask: (task) => {
+        const list = JSON.parse(localStorage.getItem('list'))
+        const newTask = new CreateTask(task)
+
+        list.push(newTask)
+
+        localStorage.setItem('list', JSON.stringify(list))
+    },
+
+    deleteTask: (task) => {
+        const list = JSON.parse(localStorage.getItem('list'))
+        const indexTask = list.findIndex(item => item.name === task)
+
+        if (indexTask !== -1) {
+            list.splice(indexTask, 1)
+        }
+
+        localStorage.setItem('list', JSON.stringify(list))
+    },
+
+    getList: () => {
+        return JSON.parse(localStorage.getItem('list'))
+    }
 }
