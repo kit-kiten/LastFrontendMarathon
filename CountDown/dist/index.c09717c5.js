@@ -518,7 +518,7 @@ var _viewMjs = require("./view.mjs");
 var _dateFns = require("date-fns");
 function onloadResult() {
     try {
-        setInterval(onloadResult, 1000);
+        setTimeout(onloadResult, 1000);
         const enterDate = new Date(_viewMjs.UI_ELEMENTS.ENTER_DATE.value);
         const nowDate = new Date();
         const intervalDate = _dateFns.intervalToDuration({

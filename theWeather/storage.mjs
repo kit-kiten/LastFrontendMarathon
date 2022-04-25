@@ -1,11 +1,13 @@
+import Cookies from 'js-cookie'
+
 export const storage = {
     createCitiesListAndDefaultCity : () => {
         if (JSON.parse(localStorage.getItem('citiesList')) === null){
             const favoriteCities = new Set()
             localStorage.setItem('citiesList', JSON.stringify([...favoriteCities]))
         }
-        if (JSON.parse(localStorage.getItem('currentCity')) === null){
-            localStorage.setItem('currentCity', JSON.stringify('Vladivostok'))
+        if (Cookies.get('currentCity') === undefined){
+            Cookies.set('currentCity', 'Vladivostok')
         }
     },
 
@@ -13,7 +15,6 @@ export const storage = {
         const favoriteCities = new Set(JSON.parse(localStorage.getItem('citiesList')))
 
         favoriteCities.add(cityName)
-        console.log(favoriteCities)
         localStorage.setItem('citiesList', JSON.stringify([...favoriteCities]))
     },
 
@@ -29,10 +30,11 @@ export const storage = {
     },
 
     changeCurrentCity : (cityName) => {
-        localStorage.setItem('currentCity', JSON.stringify(cityName))
+        const cookieTime = 1 / 24
+        Cookies.set('currentCity', cityName, {expires: cookieTime})
     },
 
     getCurrentCity : () => {
-        return JSON.parse(localStorage.getItem('currentCity'))
+        return Cookies.get('currentCity')
     }
 }

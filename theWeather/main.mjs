@@ -1,6 +1,6 @@
 import {UI_ELEMENTS} from "./view.mjs"
 import {storage} from "./storage.mjs";
-import { compareAsc, format } from 'date-fns'
+import { format } from 'date-fns'
 
 const SERVER_URL = 'https://api.openweathermap.org/data/2.5/'
 const PAGE_WEATHER = 'weather'
