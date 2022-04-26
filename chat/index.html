@@ -12,6 +12,10 @@
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
+    <template id="message_submit">
+        <p class="dialog__message-text"></p>
+        <span class="dialog__message-time">18:45</span>
+    </template>
     <main class="main">
         <div class="dialog">
             <div class="container">
@@ -65,7 +69,7 @@
                         </li>
                     </ul>
                 </div>
-                <form class="dialog__bottom">
+                <form class="dialog__bottom" onsubmit="return false">
                     <input type="text" class="dialog__message-input" placeholder="сообщение..">
                     <button class="dialog__message-submit">-></button>
                 </form>
@@ -78,10 +82,10 @@
                     <button class="settings__close"></button>
                 </div>
                 <p class="settings__text">Имя в чате</p>
-                <div class="settings__bottom">
+                <form class="settings__bottom" onsubmit="return false">
                     <input type="text" class="settings__input" placeholder="Введите имя">
                     <button class="settings__submit">-></button>
-                </div>
+                </form>
             </div>
         </div>
     </main>
