@@ -71,11 +71,16 @@ input{
     display: flex;
     flex-direction: column;
     padding: 8px;
-    max-width: 272px;
+    max-width: 273px;
+
 }
 
 .dialog__message + .dialog__message{
     margin-top: 8px;
+}
+
+.dialog__message-text{
+    word-wrap: break-word;
 }
 
 .dialog__delivered_message{
