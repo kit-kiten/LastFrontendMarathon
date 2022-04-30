@@ -5,7 +5,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Chat</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;1,300&display=swap" rel="stylesheet">
@@ -16,6 +16,7 @@
         <p class="dialog__message-text"></p>
         <span class="dialog__message-time"></span>
     </template>
+    <div class="background-modal_window"></div>
     <main class="main">
         <div class="dialog">
             <div class="container">
@@ -24,50 +25,7 @@
                     <button class="dialog__btn-exit">Выйти</button>
                 </div>
                 <div class="dialog__message-box">
-                    <ul class="dialog__message-list">
-                        <li class="dialog__personal_message dialog__message dialog__delivered_message">
-                            <p class="dialog__message-text">Я: Добрый день!</p>
-                            <span class="dialog__message-time">18:45</span>
-                        </li>
-                        <li class="dialog__someone_message dialog__message dialog__delivered_message">
-                            <p class="dialog__message-text">Собеседник мой: Добрый день!</p>
-                            <span class="dialog__message-time">18:45</span>
-                        </li>
-                        <li class="dialog__someone_message dialog__message dialog__delivered_message">
-                            <p class="dialog__message-text">Собеседник мой: А это второе и, кажется, оно очень
-                                длинное, чтобы поместиться на
-                                одной строке</p>
-                            <span class="dialog__message-time">18:45</span>
-                        </li>
-                        <li class="dialog__personal_message dialog__message dialog__send_message">
-                            <p class="dialog__message-text">Я: Добрый день!</p>
-                            <span class="dialog__message-time">18:45</span>
-                        </li>
-                        <li class="dialog__someone_message dialog__message dialog__delivered_message">
-                            <p class="dialog__message-text">Собеседник мой: А это второе и, кажется, оно очень
-                                длинное, чтобы поместиться на
-                                одной строке</p>
-                            <span class="dialog__message-time">18:45</span>
-                        </li>
-                        <li class="dialog__someone_message dialog__message dialog__delivered_message">
-                            <p class="dialog__message-text">Собеседник мой: А это второе и, кажется, оно очень
-                                длинное, чтобы поместиться на
-                                одной строке</p>
-                            <span class="dialog__message-time">18:45</span>
-                        </li>
-                        <li class="dialog__someone_message dialog__message dialog__delivered_message">
-                            <p class="dialog__message-text">Собеседник мой: А это второе и, кажется, оно очень
-                                длинное, чтобы поместиться на
-                                одной строке</p>
-                            <span class="dialog__message-time">18:45</span>
-                        </li>
-                        <li class="dialog__someone_message dialog__message dialog__delivered_message">
-                            <p class="dialog__message-text">Собеседник мой: А это второе и, кажется, оно очень
-                                длинное, чтобы поместиться на
-                                одной строке</p>
-                            <span class="dialog__message-time">18:45</span>
-                        </li>
-                    </ul>
+                    <ul class="dialog__message-list"></ul>
                 </div>
                 <form class="dialog__bottom" onsubmit="return false">
                     <input type="text" class="dialog__message-input" placeholder="сообщение..">
@@ -88,7 +46,33 @@
                 </form>
             </div>
         </div>
+        <div class="authorization">
+            <div class="authorization-container">
+                <div class="authorization__top">
+                    <p class="authorization__text">Авторизация</p>
+                    <button class="authorization__close"></button>
+                </div>
+                <p class="authorization__text">Почта:</p>
+                <form class="authorization__form" onsubmit="return false">
+                    <input type="text" class="authorization__input">
+                    <button class="authorization__submit">Получить код</button>
+                </form>
+            </div>
+        </div>
+        <div class="accept">
+            <div class="accept-container">
+                <div class="accept__top">
+                    <p class="accept__text">Подтверждение</p>
+                    <button class="accept__close"></button>
+                </div>
+                <p class="accept__text">Код:</p>
+                <form class="accept__form" onsubmit="return false">
+                    <input type="text" class="accept__input">
+                    <button class="accept__submit">Войти</button>
+                </form>
+            </div>
+        </div>
     </main>
-    <script src="main.mjs" type="module"></script>
+    <script src="main.mjs" type="module" defer></script>
 </body>
 </html>
