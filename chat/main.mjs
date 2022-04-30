@@ -14,7 +14,7 @@ function createPersonalMessageElementUI(){
     li.scrollIntoView(false)
 }
 
-function createSomeoneMessageElementUI(messages, amountMessages){
+function createSomeoneMessageElementsUI(messages, amountMessages){
     const messageSubmit = document.querySelector('#message_submit')
 
     for (let i=0; i < amountMessages; i++){
@@ -41,7 +41,7 @@ function unActiveModalWindow(modalWindow){
     UI_ELEMENTS.BACKGROUND_MODAL_WINDOW.style.display = 'none'
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+async function showHistoryMessages(amountMessages){
     const URL = 'https://mighty-cove-31255.herokuapp.com/api/messages'
     const token = Cookies.get('token')
 
@@ -53,12 +53,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 'Authorization': `Bearer ${token}`
             }
         })
-        const json = await response.json()
-        const messages = await json.messages
-        createSomeoneMessageElementUI(messages, 2)
-    }
+        const {messages} = await response.json()
 
-})
+        createSomeoneMessageElementsUI(messages, amountMessages)
+    } else{
+        activeModalWindow(UI_ELEMENTS.AUTHORIZATION)
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => showHistoryMessages(2))
 
 UI_ELEMENTS.DIALOG.BUTTONS.BTN_SETTINGS.addEventListener('click', () => activeModalWindow(UI_ELEMENTS.SETTINGS))
 
@@ -103,7 +106,9 @@ UI_ELEMENTS.ACCEPT.FORM.addEventListener('submit', () => {
 
     if (isNotEmptyAcceptInput){
         Cookies.set('token', UI_ELEMENTS.ACCEPT.INPUT.value)
+        showHistoryMessages(2)
         unActiveModalWindow(UI_ELEMENTS.ACCEPT)
+        unActiveModalWindow(UI_ELEMENTS.AUTHORIZATION)
     }
 })
 

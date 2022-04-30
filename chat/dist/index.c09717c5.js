@@ -541,7 +541,7 @@ function createPersonalMessageElementUI() {
     _viewMjs.UI_ELEMENTS.DIALOG.MESSAGES_LIST.append(li);
     li.scrollIntoView(false);
 }
-function createSomeoneMessageElementUI(messages, amountMessages) {
+function createSomeoneMessageElementsUI(messages, amountMessages) {
     const messageSubmit = document.querySelector('#message_submit');
     for(let i = 0; i < amountMessages; i++){
         const li = document.createElement('li');
@@ -562,20 +562,23 @@ function unActiveModalWindow(modalWindow) {
     modalWindow.INPUT.value = '';
     _viewMjs.UI_ELEMENTS.BACKGROUND_MODAL_WINDOW.style.display = 'none';
 }
-document.addEventListener('DOMContentLoaded', async ()=>{
+async function showHistoryMessages(amountMessages) {
     const URL = 'https://mighty-cove-31255.herokuapp.com/api/messages';
     const token = _jsCookieDefault.default.get('token');
-    const response = await fetch(URL, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }
-    });
-    const json = await response.json();
-    const messages = await json.messages;
-    createSomeoneMessageElementUI(messages, 2);
-});
+    if (token !== undefined) {
+        const response = await fetch(URL, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        const { messages  } = await response.json();
+        createSomeoneMessageElementsUI(messages, amountMessages);
+    } else activeModalWindow(_viewMjs.UI_ELEMENTS.AUTHORIZATION);
+}
+document.addEventListener('DOMContentLoaded', ()=>showHistoryMessages(2)
+);
 _viewMjs.UI_ELEMENTS.DIALOG.BUTTONS.BTN_SETTINGS.addEventListener('click', ()=>activeModalWindow(_viewMjs.UI_ELEMENTS.SETTINGS)
 );
 _viewMjs.UI_ELEMENTS.SETTINGS.BUTTONS.CLOSE.addEventListener('click', ()=>unActiveModalWindow(_viewMjs.UI_ELEMENTS.SETTINGS)
@@ -611,7 +614,9 @@ _viewMjs.UI_ELEMENTS.ACCEPT.FORM.addEventListener('submit', ()=>{
     const isNotEmptyAcceptInput = _viewMjs.UI_ELEMENTS.ACCEPT.INPUT.value !== '';
     if (isNotEmptyAcceptInput) {
         _jsCookieDefault.default.set('token', _viewMjs.UI_ELEMENTS.ACCEPT.INPUT.value);
+        showHistoryMessages(2);
         unActiveModalWindow(_viewMjs.UI_ELEMENTS.ACCEPT);
+        unActiveModalWindow(_viewMjs.UI_ELEMENTS.AUTHORIZATION);
     }
 });
 _viewMjs.UI_ELEMENTS.SETTINGS.FORM.addEventListener('submit', ()=>{
