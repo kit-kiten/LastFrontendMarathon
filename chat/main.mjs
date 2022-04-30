@@ -45,16 +45,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const URL = 'https://mighty-cove-31255.herokuapp.com/api/messages'
     const token = Cookies.get('token')
 
-    const response = await fetch(URL, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }
-    })
-    const json = await response.json()
-    const messages = await json.messages
-    createSomeoneMessageElementUI(messages, 2)
+    if (token !== undefined){
+        const response = await fetch(URL, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        const json = await response.json()
+        const messages = await json.messages
+        createSomeoneMessageElementUI(messages, 2)
+    }
 
 })
 
