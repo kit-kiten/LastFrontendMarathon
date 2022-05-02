@@ -1,6 +1,7 @@
 import {UI_ELEMENTS} from "./view.mjs";
 import { format } from 'date-fns';
 import Cookies from 'js-cookie';
+import socket from "./socket.mjs";
 
 function createPersonalMessageElementUI(){
     const messageSubmit = document.querySelector('#message_submit')
@@ -44,24 +45,34 @@ function unActiveModalWindow(modalWindow){
 async function showHistoryMessages(amountMessages){
     const URL = 'https://mighty-cove-31255.herokuapp.com/api/messages'
     const token = Cookies.get('token')
+    const response = await fetch(URL, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    const {messages} = await response.json()
 
-    if (token !== undefined){
-        const response = await fetch(URL, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        const {messages} = await response.json()
-
-        createSomeoneMessageElementsUI(messages, amountMessages)
-    } else{
-        activeModalWindow(UI_ELEMENTS.AUTHORIZATION)
-    }
+    createSomeoneMessageElementsUI(messages, amountMessages)
 }
 
-document.addEventListener('DOMContentLoaded', () => showHistoryMessages(2))
+function sendMessage(){
+    socket.send(JSON.stringify({
+        text: UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value
+    }))
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const tokenIsUndefined = Cookies.get('token') === undefined
+
+    if (tokenIsUndefined){
+        activeModalWindow(UI_ELEMENTS.AUTHORIZATION)
+    } else{
+        showHistoryMessages(2)
+    }
+
+})
 
 UI_ELEMENTS.DIALOG.BUTTONS.BTN_SETTINGS.addEventListener('click', () => activeModalWindow(UI_ELEMENTS.SETTINGS))
 
@@ -77,6 +88,7 @@ UI_ELEMENTS.DIALOG.MESSAGE_FORM.addEventListener('submit', () => {
     const isNotEmptyMessageInput = UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value !== ''
 
     if (isNotEmptyMessageInput){
+        sendMessage()
         createPersonalMessageElementUI()
     }
 
@@ -97,6 +109,7 @@ UI_ELEMENTS.AUTHORIZATION.FORM.addEventListener('submit', () => {
             body: JSON.stringify({ email: 'malysnikitaenko@gmail.com' })
         })
 
+        Cookies.set('email', UI_ELEMENTS.AUTHORIZATION.INPUT.value)
         activeModalWindow(UI_ELEMENTS.ACCEPT)
     }
 })
@@ -106,7 +119,9 @@ UI_ELEMENTS.ACCEPT.FORM.addEventListener('submit', () => {
 
     if (isNotEmptyAcceptInput){
         Cookies.set('token', UI_ELEMENTS.ACCEPT.INPUT.value)
+
         showHistoryMessages(2)
+
         unActiveModalWindow(UI_ELEMENTS.ACCEPT)
         unActiveModalWindow(UI_ELEMENTS.AUTHORIZATION)
     }

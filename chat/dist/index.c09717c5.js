@@ -531,6 +531,8 @@ var _viewMjs = require("./view.mjs");
 var _dateFns = require("date-fns");
 var _jsCookie = require("js-cookie");
 var _jsCookieDefault = parcelHelpers.interopDefault(_jsCookie);
+var _socketMjs = require("./socket.mjs");
+var _socketMjsDefault = parcelHelpers.interopDefault(_socketMjs);
 function createPersonalMessageElementUI() {
     const messageSubmit = document.querySelector('#message_submit');
     const li = document.createElement('li');
@@ -565,20 +567,26 @@ function unActiveModalWindow(modalWindow) {
 async function showHistoryMessages(amountMessages) {
     const URL = 'https://mighty-cove-31255.herokuapp.com/api/messages';
     const token = _jsCookieDefault.default.get('token');
-    if (token !== undefined) {
-        const response = await fetch(URL, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        const { messages  } = await response.json();
-        createSomeoneMessageElementsUI(messages, amountMessages);
-    } else activeModalWindow(_viewMjs.UI_ELEMENTS.AUTHORIZATION);
+    const response = await fetch(URL, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    const { messages  } = await response.json();
+    createSomeoneMessageElementsUI(messages, amountMessages);
 }
-document.addEventListener('DOMContentLoaded', ()=>showHistoryMessages(2)
-);
+function sendMessage() {
+    _socketMjsDefault.default.send(JSON.stringify({
+        text: _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value
+    }));
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+    const tokenIsUndefined = _jsCookieDefault.default.get('token') === undefined;
+    if (tokenIsUndefined) activeModalWindow(_viewMjs.UI_ELEMENTS.AUTHORIZATION);
+    else showHistoryMessages(2);
+});
 _viewMjs.UI_ELEMENTS.DIALOG.BUTTONS.BTN_SETTINGS.addEventListener('click', ()=>activeModalWindow(_viewMjs.UI_ELEMENTS.SETTINGS)
 );
 _viewMjs.UI_ELEMENTS.SETTINGS.BUTTONS.CLOSE.addEventListener('click', ()=>unActiveModalWindow(_viewMjs.UI_ELEMENTS.SETTINGS)
@@ -591,7 +599,10 @@ _viewMjs.UI_ELEMENTS.ACCEPT.BUTTONS.CLOSE.addEventListener('click', ()=>unActive
 );
 _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_FORM.addEventListener('submit', ()=>{
     const isNotEmptyMessageInput = _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value !== '';
-    if (isNotEmptyMessageInput) createPersonalMessageElementUI();
+    if (isNotEmptyMessageInput) {
+        sendMessage();
+        createPersonalMessageElementUI();
+    }
     _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value = '';
 });
 _viewMjs.UI_ELEMENTS.AUTHORIZATION.FORM.addEventListener('submit', ()=>{
@@ -607,6 +618,7 @@ _viewMjs.UI_ELEMENTS.AUTHORIZATION.FORM.addEventListener('submit', ()=>{
                 email: 'malysnikitaenko@gmail.com'
             })
         });
+        _jsCookieDefault.default.set('email', _viewMjs.UI_ELEMENTS.AUTHORIZATION.INPUT.value);
         activeModalWindow(_viewMjs.UI_ELEMENTS.ACCEPT);
     }
 });
@@ -637,7 +649,7 @@ _viewMjs.UI_ELEMENTS.SETTINGS.FORM.addEventListener('submit', ()=>{
     }
 });
 
-},{"./view.mjs":"i1yN4","date-fns":"9yHCA","js-cookie":"c8bBu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"i1yN4":[function(require,module,exports) {
+},{"./view.mjs":"i1yN4","date-fns":"9yHCA","js-cookie":"c8bBu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./socket.mjs":"fe8Wc"}],"i1yN4":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "UI_ELEMENTS", ()=>UI_ELEMENTS
@@ -3814,6 +3826,34 @@ var secondsInMinute = 60;
     /* eslint-enable no-var */ return api;
 });
 
-},{}]},["cRlMu","kkGe5"], "kkGe5", "parcelRequire25d8")
+},{}],"fe8Wc":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _jsCookie = require("js-cookie");
+var _jsCookieDefault = parcelHelpers.interopDefault(_jsCookie);
+var _dateFns = require("date-fns");
+var _viewMjs = require("./view.mjs");
+const token = _jsCookieDefault.default.get('token');
+const URL = `ws://mighty-cove-31255.herokuapp.com/websockets?${token}`;
+const socket = new WebSocket(URL);
+socket.onopen = ()=>{
+    console.log('Связь с сервером установлена');
+};
+socket.onmessage = (event)=>{
+    const data = JSON.parse(event.data);
+    if (data.user.email !== _jsCookieDefault.default.get('email')) {
+        const messageSubmit = document.querySelector('#message_submit');
+        const li = document.createElement('li');
+        li.className = 'dialog__someone_message dialog__message dialog__delivered_message';
+        li.append(messageSubmit.content.cloneNode(true));
+        li.querySelector('.dialog__message-text').textContent = `${data.user.name}: ${data.text}`;
+        li.querySelector('.dialog__message-time').textContent = _dateFns.format(new Date(data.createdAt), 'HH:mm');
+        _viewMjs.UI_ELEMENTS.DIALOG.MESSAGES_LIST.append(li);
+        li.scrollIntoView(false);
+    } else console.log(data);
+};
+exports.default = socket;
+
+},{"js-cookie":"c8bBu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","date-fns":"9yHCA","./view.mjs":"i1yN4"}]},["cRlMu","kkGe5"], "kkGe5", "parcelRequire25d8")
 
 //# sourceMappingURL=index.c09717c5.js.map
