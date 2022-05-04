@@ -3,32 +3,39 @@ import { format } from 'date-fns';
 import Cookies from 'js-cookie';
 import socket from "./socket.mjs";
 
-function createPersonalMessageElementUI(){
+export function createMessageElementUI(data, sender=''){
     const messageSubmit = document.querySelector('#message_submit')
     const li = document.createElement('li')
 
-    li.className = 'dialog__personal_message dialog__message dialog__delivered_message'
-    li.append(messageSubmit.content.cloneNode(true))
-    li.querySelector('.dialog__message-text').textContent = 'Я: ' + UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value
-    li.querySelector('.dialog__message-time').textContent = format(new Date(), 'HH:mm')
+    if(sender === 'personal'){
+        li.className = 'dialog__personal_message dialog__message dialog__delivered_message'
+        li.append(messageSubmit.content.cloneNode(true))
+        li.querySelector('.dialog__message-text').textContent = `Я: ${data.text}`
+
+    } else{
+        li.className = 'dialog__someone_message dialog__message dialog__delivered_message'
+        li.append(messageSubmit.content.cloneNode(true))
+        li.querySelector('.dialog__message-text').textContent = `${data.user.name}: ${data.text}`
+    }
+
+    li.querySelector('.dialog__message-time').textContent = format(new Date(data.createdAt), 'HH:mm')
     UI_ELEMENTS.DIALOG.MESSAGES_LIST.append(li)
     li.scrollIntoView(false)
 }
 
-function createSomeoneMessageElementsUI(messages, amountMessages){
-    const messageSubmit = document.querySelector('#message_submit')
-
-    for (let i=0; i < amountMessages; i++){
-        const li = document.createElement('li')
-
-        li.className = 'dialog__someone_message dialog__message dialog__delivered_message'
-        li.append(messageSubmit.content.cloneNode(true))
-        li.querySelector('.dialog__message-text').textContent = `${messages[i].user.name}: ${messages[i].text}`
-        li.querySelector('.dialog__message-time').textContent = format(new Date(messages[i].createdAt), 'HH:mm')
-        UI_ELEMENTS.DIALOG.MESSAGES_LIST.append(li)
-        li.scrollIntoView(false)
+export function checkTypeMessage(data){
+    if (data.user.email !== Cookies.get('email')){
+        createMessageElementUI(data)
+    } else{
+        createMessageElementUI(data, 'personal')
     }
+}
 
+function createSomeoneMessageElementsUI(messages, amountMessages){
+    for (let i=0; i < amountMessages; i++){
+        const data = messages[i]
+        checkTypeMessage(data)
+    }
 }
 
 function activeModalWindow(modalWindow){
@@ -69,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tokenIsUndefined){
         activeModalWindow(UI_ELEMENTS.AUTHORIZATION)
     } else{
-        showHistoryMessages(2)
+        showHistoryMessages(4)
     }
 
 })
@@ -89,7 +96,6 @@ UI_ELEMENTS.DIALOG.MESSAGE_FORM.addEventListener('submit', () => {
 
     if (isNotEmptyMessageInput){
         sendMessage()
-        createPersonalMessageElementUI()
     }
 
     UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value = ''
@@ -142,5 +148,13 @@ UI_ELEMENTS.SETTINGS.FORM.addEventListener('submit', () => {
             },
             body: JSON.stringify({name: UI_ELEMENTS.SETTINGS.INPUT.value})
         })
+    }
+})
+
+UI_ELEMENTS.MODAL_WINDOWS.addEventListener('click', (event) => {
+    const isModalWindow = event.target.classList.contains('modal-window')
+    if (isModalWindow){
+        event.target.style.display = 'none'
+        UI_ELEMENTS.BACKGROUND_MODAL_WINDOW.style.display = 'none'
     }
 })

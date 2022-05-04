@@ -527,32 +527,41 @@ function hmrAcceptRun(bundle, id) {
 
 },{}],"kkGe5":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "createMessageElementUI", ()=>createMessageElementUI
+);
+parcelHelpers.export(exports, "checkTypeMessage", ()=>checkTypeMessage
+);
 var _viewMjs = require("./view.mjs");
 var _dateFns = require("date-fns");
 var _jsCookie = require("js-cookie");
 var _jsCookieDefault = parcelHelpers.interopDefault(_jsCookie);
 var _socketMjs = require("./socket.mjs");
 var _socketMjsDefault = parcelHelpers.interopDefault(_socketMjs);
-function createPersonalMessageElementUI() {
+function createMessageElementUI(data, sender = '') {
     const messageSubmit = document.querySelector('#message_submit');
     const li = document.createElement('li');
-    li.className = 'dialog__personal_message dialog__message dialog__delivered_message';
-    li.append(messageSubmit.content.cloneNode(true));
-    li.querySelector('.dialog__message-text').textContent = 'Я: ' + _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value;
-    li.querySelector('.dialog__message-time').textContent = _dateFns.format(new Date(), 'HH:mm');
+    if (sender === 'personal') {
+        li.className = 'dialog__personal_message dialog__message dialog__delivered_message';
+        li.append(messageSubmit.content.cloneNode(true));
+        li.querySelector('.dialog__message-text').textContent = `Я: ${data.text}`;
+    } else {
+        li.className = 'dialog__someone_message dialog__message dialog__delivered_message';
+        li.append(messageSubmit.content.cloneNode(true));
+        li.querySelector('.dialog__message-text').textContent = `${data.user.name}: ${data.text}`;
+    }
+    li.querySelector('.dialog__message-time').textContent = _dateFns.format(new Date(data.createdAt), 'HH:mm');
     _viewMjs.UI_ELEMENTS.DIALOG.MESSAGES_LIST.append(li);
     li.scrollIntoView(false);
 }
+function checkTypeMessage(data) {
+    if (data.user.email !== _jsCookieDefault.default.get('email')) createMessageElementUI(data);
+    else createMessageElementUI(data, 'personal');
+}
 function createSomeoneMessageElementsUI(messages, amountMessages) {
-    const messageSubmit = document.querySelector('#message_submit');
     for(let i = 0; i < amountMessages; i++){
-        const li = document.createElement('li');
-        li.className = 'dialog__someone_message dialog__message dialog__delivered_message';
-        li.append(messageSubmit.content.cloneNode(true));
-        li.querySelector('.dialog__message-text').textContent = `${messages[i].user.name}: ${messages[i].text}`;
-        li.querySelector('.dialog__message-time').textContent = _dateFns.format(new Date(messages[i].createdAt), 'HH:mm');
-        _viewMjs.UI_ELEMENTS.DIALOG.MESSAGES_LIST.append(li);
-        li.scrollIntoView(false);
+        const data = messages[i];
+        checkTypeMessage(data);
     }
 }
 function activeModalWindow(modalWindow) {
@@ -585,7 +594,7 @@ function sendMessage() {
 document.addEventListener('DOMContentLoaded', ()=>{
     const tokenIsUndefined = _jsCookieDefault.default.get('token') === undefined;
     if (tokenIsUndefined) activeModalWindow(_viewMjs.UI_ELEMENTS.AUTHORIZATION);
-    else showHistoryMessages(2);
+    else showHistoryMessages(4);
 });
 _viewMjs.UI_ELEMENTS.DIALOG.BUTTONS.BTN_SETTINGS.addEventListener('click', ()=>activeModalWindow(_viewMjs.UI_ELEMENTS.SETTINGS)
 );
@@ -599,10 +608,7 @@ _viewMjs.UI_ELEMENTS.ACCEPT.BUTTONS.CLOSE.addEventListener('click', ()=>unActive
 );
 _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_FORM.addEventListener('submit', ()=>{
     const isNotEmptyMessageInput = _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value !== '';
-    if (isNotEmptyMessageInput) {
-        sendMessage();
-        createPersonalMessageElementUI();
-    }
+    if (isNotEmptyMessageInput) sendMessage();
     _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value = '';
 });
 _viewMjs.UI_ELEMENTS.AUTHORIZATION.FORM.addEventListener('submit', ()=>{
@@ -648,6 +654,13 @@ _viewMjs.UI_ELEMENTS.SETTINGS.FORM.addEventListener('submit', ()=>{
         });
     }
 });
+_viewMjs.UI_ELEMENTS.MODAL_WINDOWS.addEventListener('click', (event)=>{
+    const isModalWindow = event.target.classList.contains('modal-window');
+    if (isModalWindow) {
+        event.target.style.display = 'none';
+        _viewMjs.UI_ELEMENTS.BACKGROUND_MODAL_WINDOW.style.display = 'none';
+    }
+});
 
 },{"./view.mjs":"i1yN4","date-fns":"9yHCA","js-cookie":"c8bBu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./socket.mjs":"fe8Wc"}],"i1yN4":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -688,7 +701,8 @@ const UI_ELEMENTS = {
             CLOSE: document.querySelector('.accept__close')
         }
     },
-    BACKGROUND_MODAL_WINDOW: document.querySelector('.background-modal_window')
+    BACKGROUND_MODAL_WINDOW: document.querySelector('.background-modal_window'),
+    MODAL_WINDOWS: document.querySelector('.modal-windows')
 };
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
@@ -3831,8 +3845,7 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _jsCookie = require("js-cookie");
 var _jsCookieDefault = parcelHelpers.interopDefault(_jsCookie);
-var _dateFns = require("date-fns");
-var _viewMjs = require("./view.mjs");
+var _mainMjs = require("./main.mjs");
 const token = _jsCookieDefault.default.get('token');
 const URL = `ws://mighty-cove-31255.herokuapp.com/websockets?${token}`;
 const socket = new WebSocket(URL);
@@ -3841,19 +3854,10 @@ socket.onopen = ()=>{
 };
 socket.onmessage = (event)=>{
     const data = JSON.parse(event.data);
-    if (data.user.email !== _jsCookieDefault.default.get('email')) {
-        const messageSubmit = document.querySelector('#message_submit');
-        const li = document.createElement('li');
-        li.className = 'dialog__someone_message dialog__message dialog__delivered_message';
-        li.append(messageSubmit.content.cloneNode(true));
-        li.querySelector('.dialog__message-text').textContent = `${data.user.name}: ${data.text}`;
-        li.querySelector('.dialog__message-time').textContent = _dateFns.format(new Date(data.createdAt), 'HH:mm');
-        _viewMjs.UI_ELEMENTS.DIALOG.MESSAGES_LIST.append(li);
-        li.scrollIntoView(false);
-    } else console.log(data);
+    _mainMjs.checkTypeMessage(data);
 };
 exports.default = socket;
 
-},{"js-cookie":"c8bBu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","date-fns":"9yHCA","./view.mjs":"i1yN4"}]},["cRlMu","kkGe5"], "kkGe5", "parcelRequire25d8")
+},{"js-cookie":"c8bBu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./main.mjs":"kkGe5"}]},["cRlMu","kkGe5"], "kkGe5", "parcelRequire25d8")
 
 //# sourceMappingURL=index.c09717c5.js.map

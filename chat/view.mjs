@@ -32,5 +32,6 @@ export const UI_ELEMENTS = {
             CLOSE: document.querySelector('.accept__close')
         }
     },
-    BACKGROUND_MODAL_WINDOW: document.querySelector('.background-modal_window')
+    BACKGROUND_MODAL_WINDOW: document.querySelector('.background-modal_window'),
+    MODAL_WINDOWS: document.querySelector('.modal-windows')
 }
