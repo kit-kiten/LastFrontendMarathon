@@ -67,15 +67,16 @@ input{
     border: 1px solid #000000;
 }
 
-.dialog__message-box{
-    height: 437px;
-    overflow: scroll;
-}
+/*.dialog__message-box{*/
+/*    height: 437px;*/
+/*    overflow: scroll;*/
+/*}*/
 
 .dialog__message-list{
     display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
+    flex-direction: column-reverse;
+    height: 437px;
+    overflow: auto;
 }
 
 .dialog__message{
@@ -86,7 +87,7 @@ input{
     z-index: -2;
 }
 
-.dialog__message + .dialog__message{
+.dialog__message:not(:last-child) {
     margin-top: 8px;
 }
 
@@ -140,7 +141,7 @@ input{
     margin-bottom: 8px;
 }
 
-.dialog__message-box::-webkit-scrollbar{width: 0! important}
+.dialog__message-list::-webkit-scrollbar{width: 0! important}
 
 .settings,
 .authorization,

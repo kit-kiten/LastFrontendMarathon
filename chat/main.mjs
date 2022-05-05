@@ -23,9 +23,9 @@ export function createMessageElementUI(data, sender, history){
     li.querySelector('.dialog__message-time').textContent = format(new Date(data.createdAt), 'HH:mm')
 
     if (history){
-        UI_ELEMENTS.DIALOG.MESSAGES_LIST.prepend(li)
-    } else{
         UI_ELEMENTS.DIALOG.MESSAGES_LIST.append(li)
+    } else{
+        UI_ELEMENTS.DIALOG.MESSAGES_LIST.prepend(li)
         li.scrollIntoView(false)
     }
 
@@ -78,9 +78,6 @@ async function showHistoryMessages(amountMessages, isScroll){
     const {messages} = await response.json()
 
     createSomeoneMessageElementsUI(messages, amountMessages)
-    if (isScroll){
-        scrollHistoryDown()
-    }
 }
 
 function sendMessage(){
@@ -119,13 +116,15 @@ UI_ELEMENTS.DIALOG.MESSAGE_FORM.addEventListener('submit', () => {
     UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value = ''
 })
 
-UI_ELEMENTS.DIALOG.MESSAGE_SCROLL_BOX.addEventListener('scroll', () => {
-    const scroll = UI_ELEMENTS.DIALOG.MESSAGE_SCROLL_BOX
-    if (scroll.scrollHeight - scroll.scrollTop - scroll.offsetHeight > 50){
-        console.log(`scrollHeight: ${scroll.scrollHeight}`)
-        console.log(`scrollTop: ${scroll.scrollTop}`)
-        console.log(`offsetHeight: ${scroll.offsetHeight}`)
+document.querySelector('.dialog__message-list').addEventListener('scroll', () => {
+    const scroll = document.querySelector('.dialog__message-list')
+    console.log(scroll.scrollHeight + scroll.scrollTop - scroll.offsetHeight);
+    if (scroll.scrollHeight + scroll.scrollTop - scroll.offsetHeight < 50){
+        showHistoryMessages(20, true)
     }
+})
+
+document.querySelector('.dialog__message-list').addEventListener('scroll', () => {
 })
 
 UI_ELEMENTS.AUTHORIZATION.FORM.addEventListener('submit', () => {

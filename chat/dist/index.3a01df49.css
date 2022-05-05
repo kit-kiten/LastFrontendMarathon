@@ -66,15 +66,11 @@ input {
   padding: 7px;
 }
 
-.dialog__message-box {
-  height: 437px;
-  overflow: scroll;
-}
-
 .dialog__message-list {
-  flex-direction: column;
-  justify-content: flex-end;
+  height: 437px;
+  flex-direction: column-reverse;
   display: flex;
+  overflow: auto;
 }
 
 .dialog__message {
@@ -85,7 +81,7 @@ input {
   display: flex;
 }
 
-.dialog__message + .dialog__message {
+.dialog__message:not(:last-child) {
   margin-top: 8px;
 }
 
@@ -139,7 +135,7 @@ input {
   padding: 8px;
 }
 
-.dialog__message-box::-webkit-scrollbar {
+.dialog__message-list::-webkit-scrollbar {
   width: 0 !important;
 }
 
