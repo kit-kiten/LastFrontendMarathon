@@ -1,5 +1,5 @@
 import Cookies from "js-cookie";
-import {createMessageElementUI, checkTypeMessage} from "./main.mjs";
+import {checkTypeMessage} from "./main.mjs";
 
 const token = Cookies.get('token')
 const URL = `ws://mighty-cove-31255.herokuapp.com/websockets?${token}`

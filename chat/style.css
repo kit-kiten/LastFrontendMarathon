@@ -94,14 +94,6 @@ input{
     word-wrap: break-word;
 }
 
-.dialog__delivered_message{
-    background-color: #E5E5E5;
-}
-
-.dialog__send_message{
-    background-color: #F6F6F6;
-}
-
 .dialog__message-time{
     align-self: flex-end;
     margin-top: 4px;
@@ -111,10 +103,12 @@ input{
 
 .dialog__personal_message{
     align-self: flex-end;
+    background-color: #d199ff;
 }
 
 .dialog__someone_message{
     align-self: flex-start;
+    background-color: #a8d8ff;
 }
 
 .dialog__bottom{

@@ -538,31 +538,37 @@ var _jsCookie = require("js-cookie");
 var _jsCookieDefault = parcelHelpers.interopDefault(_jsCookie);
 var _socketMjs = require("./socket.mjs");
 var _socketMjsDefault = parcelHelpers.interopDefault(_socketMjs);
-function createMessageElementUI(data, sender = '') {
+let amountVisibleMessages = 0;
+function createMessageElementUI(data, sender, history) {
     const messageSubmit = document.querySelector('#message_submit');
     const li = document.createElement('li');
     if (sender === 'personal') {
-        li.className = 'dialog__personal_message dialog__message dialog__delivered_message';
+        li.className = 'dialog__personal_message dialog__message';
         li.append(messageSubmit.content.cloneNode(true));
         li.querySelector('.dialog__message-text').textContent = `Я: ${data.text}`;
     } else {
-        li.className = 'dialog__someone_message dialog__message dialog__delivered_message';
+        li.className = 'dialog__someone_message dialog__message';
         li.append(messageSubmit.content.cloneNode(true));
         li.querySelector('.dialog__message-text').textContent = `${data.user.name}: ${data.text}`;
     }
     li.querySelector('.dialog__message-time').textContent = _dateFns.format(new Date(data.createdAt), 'HH:mm');
-    _viewMjs.UI_ELEMENTS.DIALOG.MESSAGES_LIST.append(li);
-    li.scrollIntoView(false);
+    if (history) _viewMjs.UI_ELEMENTS.DIALOG.MESSAGES_LIST.prepend(li);
+    else {
+        _viewMjs.UI_ELEMENTS.DIALOG.MESSAGES_LIST.append(li);
+        li.scrollIntoView(false);
+    }
 }
-function checkTypeMessage(data) {
-    if (data.user.email !== _jsCookieDefault.default.get('email')) createMessageElementUI(data);
-    else createMessageElementUI(data, 'personal');
+function checkTypeMessage(data, history) {
+    if (data.user.email !== _jsCookieDefault.default.get('email')) createMessageElementUI(data, '', history);
+    else createMessageElementUI(data, 'personal', history);
 }
 function createSomeoneMessageElementsUI(messages, amountMessages) {
-    for(let i = 0; i < amountMessages; i++){
-        const data = messages[i];
-        checkTypeMessage(data);
+    for(let i = 1; i < amountMessages; i++){
+        const length = Object.keys(messages).length;
+        const data = messages[length - i - amountVisibleMessages];
+        checkTypeMessage(data, true);
     }
+    amountVisibleMessages += 20;
 }
 function activeModalWindow(modalWindow) {
     modalWindow.BLOCK.style.display = 'flex';
@@ -573,7 +579,12 @@ function unActiveModalWindow(modalWindow) {
     modalWindow.INPUT.value = '';
     _viewMjs.UI_ELEMENTS.BACKGROUND_MODAL_WINDOW.style.display = 'none';
 }
-async function showHistoryMessages(amountMessages) {
+function scrollHistoryDown() {
+    const messages = document.querySelectorAll('.dialog__message');
+    const length = Object.keys(messages).length;
+    messages[length - 1].scrollIntoView(false);
+}
+async function showHistoryMessages(amountMessages, isScroll) {
     const URL = 'https://mighty-cove-31255.herokuapp.com/api/messages';
     const token = _jsCookieDefault.default.get('token');
     const response = await fetch(URL, {
@@ -585,6 +596,7 @@ async function showHistoryMessages(amountMessages) {
     });
     const { messages  } = await response.json();
     createSomeoneMessageElementsUI(messages, amountMessages);
+    if (isScroll) scrollHistoryDown();
 }
 function sendMessage() {
     _socketMjsDefault.default.send(JSON.stringify({
@@ -594,7 +606,7 @@ function sendMessage() {
 document.addEventListener('DOMContentLoaded', ()=>{
     const tokenIsUndefined = _jsCookieDefault.default.get('token') === undefined;
     if (tokenIsUndefined) activeModalWindow(_viewMjs.UI_ELEMENTS.AUTHORIZATION);
-    else showHistoryMessages(4);
+    else showHistoryMessages(20, true);
 });
 _viewMjs.UI_ELEMENTS.DIALOG.BUTTONS.BTN_SETTINGS.addEventListener('click', ()=>activeModalWindow(_viewMjs.UI_ELEMENTS.SETTINGS)
 );
@@ -610,6 +622,14 @@ _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_FORM.addEventListener('submit', ()=>{
     const isNotEmptyMessageInput = _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value !== '';
     if (isNotEmptyMessageInput) sendMessage();
     _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value = '';
+});
+_viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_SCROLL_BOX.addEventListener('scroll', ()=>{
+    const scroll = _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_SCROLL_BOX;
+    if (scroll.scrollHeight - scroll.scrollTop - scroll.offsetHeight > 50) {
+        console.log(`scrollHeight: ${scroll.scrollHeight}`);
+        console.log(`scrollTop: ${scroll.scrollTop}`);
+        console.log(`offsetHeight: ${scroll.offsetHeight}`);
+    }
 });
 _viewMjs.UI_ELEMENTS.AUTHORIZATION.FORM.addEventListener('submit', ()=>{
     const isNotEmptyAuthorizationInput = _viewMjs.UI_ELEMENTS.AUTHORIZATION.INPUT.value !== '';
@@ -670,6 +690,7 @@ parcelHelpers.export(exports, "UI_ELEMENTS", ()=>UI_ELEMENTS
 const UI_ELEMENTS = {
     DIALOG: {
         MESSAGE_FORM: document.querySelector('.dialog__bottom'),
+        MESSAGE_SCROLL_BOX: document.querySelector('.dialog__message-box'),
         MESSAGES_LIST: document.querySelector('.dialog__message-list'),
         MESSAGE_INPUT: document.querySelector('.dialog__message-input'),
         BUTTONS: {

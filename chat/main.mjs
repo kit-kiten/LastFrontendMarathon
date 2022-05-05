@@ -3,39 +3,49 @@ import { format } from 'date-fns';
 import Cookies from 'js-cookie';
 import socket from "./socket.mjs";
 
-export function createMessageElementUI(data, sender=''){
+let amountVisibleMessages = 0
+
+export function createMessageElementUI(data, sender, history){
     const messageSubmit = document.querySelector('#message_submit')
     const li = document.createElement('li')
 
     if(sender === 'personal'){
-        li.className = 'dialog__personal_message dialog__message dialog__delivered_message'
+        li.className = 'dialog__personal_message dialog__message'
         li.append(messageSubmit.content.cloneNode(true))
         li.querySelector('.dialog__message-text').textContent = `Я: ${data.text}`
 
     } else{
-        li.className = 'dialog__someone_message dialog__message dialog__delivered_message'
+        li.className = 'dialog__someone_message dialog__message'
         li.append(messageSubmit.content.cloneNode(true))
         li.querySelector('.dialog__message-text').textContent = `${data.user.name}: ${data.text}`
     }
 
     li.querySelector('.dialog__message-time').textContent = format(new Date(data.createdAt), 'HH:mm')
-    UI_ELEMENTS.DIALOG.MESSAGES_LIST.append(li)
-    li.scrollIntoView(false)
+
+    if (history){
+        UI_ELEMENTS.DIALOG.MESSAGES_LIST.prepend(li)
+    } else{
+        UI_ELEMENTS.DIALOG.MESSAGES_LIST.append(li)
+        li.scrollIntoView(false)
+    }
+
 }
 
-export function checkTypeMessage(data){
+export function checkTypeMessage(data, history){
     if (data.user.email !== Cookies.get('email')){
-        createMessageElementUI(data)
+        createMessageElementUI(data, '', history)
     } else{
-        createMessageElementUI(data, 'personal')
+        createMessageElementUI(data, 'personal', history)
     }
 }
 
 function createSomeoneMessageElementsUI(messages, amountMessages){
-    for (let i=0; i < amountMessages; i++){
-        const data = messages[i]
-        checkTypeMessage(data)
+    for (let i=1; i < amountMessages; i++){
+        const length = Object.keys(messages).length
+        const data = messages[length - i - amountVisibleMessages]
+        checkTypeMessage(data, true)
     }
+    amountVisibleMessages += 20
 }
 
 function activeModalWindow(modalWindow){
@@ -49,7 +59,13 @@ function unActiveModalWindow(modalWindow){
     UI_ELEMENTS.BACKGROUND_MODAL_WINDOW.style.display = 'none'
 }
 
-async function showHistoryMessages(amountMessages){
+function scrollHistoryDown(){
+    const messages = document.querySelectorAll('.dialog__message')
+    const length = Object.keys(messages).length
+    messages[length - 1].scrollIntoView(false)
+}
+
+async function showHistoryMessages(amountMessages, isScroll){
     const URL = 'https://mighty-cove-31255.herokuapp.com/api/messages'
     const token = Cookies.get('token')
     const response = await fetch(URL, {
@@ -62,6 +78,9 @@ async function showHistoryMessages(amountMessages){
     const {messages} = await response.json()
 
     createSomeoneMessageElementsUI(messages, amountMessages)
+    if (isScroll){
+        scrollHistoryDown()
+    }
 }
 
 function sendMessage(){
@@ -76,9 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tokenIsUndefined){
         activeModalWindow(UI_ELEMENTS.AUTHORIZATION)
     } else{
-        showHistoryMessages(4)
+        showHistoryMessages(20, true)
     }
-
 })
 
 UI_ELEMENTS.DIALOG.BUTTONS.BTN_SETTINGS.addEventListener('click', () => activeModalWindow(UI_ELEMENTS.SETTINGS))
@@ -99,6 +117,15 @@ UI_ELEMENTS.DIALOG.MESSAGE_FORM.addEventListener('submit', () => {
     }
 
     UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value = ''
+})
+
+UI_ELEMENTS.DIALOG.MESSAGE_SCROLL_BOX.addEventListener('scroll', () => {
+    const scroll = UI_ELEMENTS.DIALOG.MESSAGE_SCROLL_BOX
+    if (scroll.scrollHeight - scroll.scrollTop - scroll.offsetHeight > 50){
+        console.log(`scrollHeight: ${scroll.scrollHeight}`)
+        console.log(`scrollTop: ${scroll.scrollTop}`)
+        console.log(`offsetHeight: ${scroll.offsetHeight}`)
+    }
 })
 
 UI_ELEMENTS.AUTHORIZATION.FORM.addEventListener('submit', () => {

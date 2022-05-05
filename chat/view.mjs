@@ -1,6 +1,7 @@
 export const UI_ELEMENTS = {
     DIALOG: {
         MESSAGE_FORM: document.querySelector('.dialog__bottom'),
+        MESSAGE_SCROLL_BOX: document.querySelector('.dialog__message-box'),
         MESSAGES_LIST: document.querySelector('.dialog__message-list'),
         MESSAGE_INPUT: document.querySelector('.dialog__message-input'),
         BUTTONS: {
