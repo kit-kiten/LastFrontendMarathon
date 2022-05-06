@@ -132,7 +132,7 @@ UI_ELEMENTS.AUTHORIZATION.FORM.addEventListener('submit', () => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ email: 'malysnikitaenko@gmail.com' })
+            body: JSON.stringify({ email: UI_ELEMENTS.AUTHORIZATION.INPUT.value })
         })
 
         Cookies.set('email', UI_ELEMENTS.AUTHORIZATION.INPUT.value)
