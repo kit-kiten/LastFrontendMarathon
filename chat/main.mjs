@@ -59,13 +59,8 @@ function unActiveModalWindow(modalWindow){
     UI_ELEMENTS.BACKGROUND_MODAL_WINDOW.style.display = 'none'
 }
 
-function scrollHistoryDown(){
-    const messages = document.querySelectorAll('.dialog__message')
-    const length = Object.keys(messages).length
-    messages[length - 1].scrollIntoView(false)
-}
 
-async function showHistoryMessages(amountMessages, isScroll){
+async function showHistoryMessages(amountMessages){
     const URL = 'https://mighty-cove-31255.herokuapp.com/api/messages'
     const token = Cookies.get('token')
     const response = await fetch(URL, {
@@ -116,11 +111,10 @@ UI_ELEMENTS.DIALOG.MESSAGE_FORM.addEventListener('submit', () => {
     UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value = ''
 })
 
-document.querySelector('.dialog__message-list').addEventListener('scroll', () => {
-    const scroll = document.querySelector('.dialog__message-list')
-    console.log(scroll.scrollHeight + scroll.scrollTop - scroll.offsetHeight);
+UI_ELEMENTS.DIALOG.MESSAGES_LIST.addEventListener('scroll', () => {
+    const scroll = UI_ELEMENTS.DIALOG.MESSAGES_LIST
     if (scroll.scrollHeight + scroll.scrollTop - scroll.offsetHeight < 50){
-        showHistoryMessages(20, true)
+        showHistoryMessages(20)
     }
 })
 
@@ -152,7 +146,7 @@ UI_ELEMENTS.ACCEPT.FORM.addEventListener('submit', () => {
     if (isNotEmptyAcceptInput){
         Cookies.set('token', UI_ELEMENTS.ACCEPT.INPUT.value)
 
-        showHistoryMessages(2)
+        showHistoryMessages(20)
 
         unActiveModalWindow(UI_ELEMENTS.ACCEPT)
         unActiveModalWindow(UI_ELEMENTS.AUTHORIZATION)

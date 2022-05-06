@@ -579,12 +579,7 @@ function unActiveModalWindow(modalWindow) {
     modalWindow.INPUT.value = '';
     _viewMjs.UI_ELEMENTS.BACKGROUND_MODAL_WINDOW.style.display = 'none';
 }
-function scrollHistoryDown() {
-    const messages = document.querySelectorAll('.dialog__message');
-    const length = Object.keys(messages).length;
-    messages[length - 1].scrollIntoView(false);
-}
-async function showHistoryMessages(amountMessages, isScroll) {
+async function showHistoryMessages(amountMessages) {
     const URL = 'https://mighty-cove-31255.herokuapp.com/api/messages';
     const token = _jsCookieDefault.default.get('token');
     const response = await fetch(URL, {
@@ -622,10 +617,9 @@ _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_FORM.addEventListener('submit', ()=>{
     if (isNotEmptyMessageInput) sendMessage();
     _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value = '';
 });
-document.querySelector('.dialog__message-list').addEventListener('scroll', ()=>{
-    const scroll = document.querySelector('.dialog__message-list');
-    console.log(scroll.scrollHeight + scroll.scrollTop - scroll.offsetHeight);
-    if (scroll.scrollHeight + scroll.scrollTop - scroll.offsetHeight < 50) showHistoryMessages(20, true);
+_viewMjs.UI_ELEMENTS.DIALOG.MESSAGES_LIST.addEventListener('scroll', ()=>{
+    const scroll = _viewMjs.UI_ELEMENTS.DIALOG.MESSAGES_LIST;
+    if (scroll.scrollHeight + scroll.scrollTop - scroll.offsetHeight < 50) showHistoryMessages(20);
 });
 document.querySelector('.dialog__message-list').addEventListener('scroll', ()=>{});
 _viewMjs.UI_ELEMENTS.AUTHORIZATION.FORM.addEventListener('submit', ()=>{
@@ -649,7 +643,7 @@ _viewMjs.UI_ELEMENTS.ACCEPT.FORM.addEventListener('submit', ()=>{
     const isNotEmptyAcceptInput = _viewMjs.UI_ELEMENTS.ACCEPT.INPUT.value !== '';
     if (isNotEmptyAcceptInput) {
         _jsCookieDefault.default.set('token', _viewMjs.UI_ELEMENTS.ACCEPT.INPUT.value);
-        showHistoryMessages(2);
+        showHistoryMessages(20);
         unActiveModalWindow(_viewMjs.UI_ELEMENTS.ACCEPT);
         unActiveModalWindow(_viewMjs.UI_ELEMENTS.AUTHORIZATION);
     }
@@ -3864,16 +3858,26 @@ parcelHelpers.defineInteropFlag(exports);
 var _jsCookie = require("js-cookie");
 var _jsCookieDefault = parcelHelpers.interopDefault(_jsCookie);
 var _mainMjs = require("./main.mjs");
-const token = _jsCookieDefault.default.get('token');
-const URL = `ws://mighty-cove-31255.herokuapp.com/websockets?${token}`;
-const socket = new WebSocket(URL);
-socket.onopen = ()=>{
-    console.log('Связь с сервером установлена');
-};
-socket.onmessage = (event)=>{
-    const data = JSON.parse(event.data);
-    _mainMjs.checkTypeMessage(data);
-};
+function ConnectWithServer() {
+    this.init = function() {
+        const token = _jsCookieDefault.default.get('token');
+        const URL = `ws://mighty-cove-31255.herokuapp.com/websockets?${token}`;
+        const socket1 = new WebSocket(URL);
+        socket1.onopen = ()=>{
+            console.log('Связь с сервером установлена');
+        };
+        socket1.onmessage = (event)=>{
+            const data = JSON.parse(event.data);
+            _mainMjs.checkTypeMessage(data);
+        };
+        socket1.onclose = ()=>{
+            console.log('Соединение закрыто');
+            this.init();
+        };
+        return socket1;
+    };
+}
+const socket = new ConnectWithServer().init();
 exports.default = socket;
 
 },{"js-cookie":"c8bBu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./main.mjs":"kkGe5"}]},["cRlMu","kkGe5"], "kkGe5", "parcelRequire25d8")
