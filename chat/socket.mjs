@@ -1,30 +1,41 @@
 import Cookies from "js-cookie";
 import {checkTypeMessage} from "./main.mjs";
 
-function ConnectWithServer(){
-    this.init = function (){
+const socket = {
+    connect: undefined,
+
+    init: function (){
         const token = Cookies.get('token')
         const URL = `ws://mighty-cove-31255.herokuapp.com/websockets?${token}`
-        const socket = new WebSocket(URL)
 
-        socket.onopen = () => {
-            console.log('Связь с сервером установлена')
+        if(token){
+            socket.connect = new WebSocket(URL)
+
+            socket.connect.onopen = () => {
+                console.log('Связь с сервером установлена')
+            }
+
+            socket.connect.onmessage = (event) => {
+                const data = JSON.parse(event.data)
+                checkTypeMessage(data)
+            }
+
+            socket.connect.onclose = () => {
+                console.log('Соединение закрыто')
+                socket.init()
+            }
+
+            socket.connect.onerror = (error) => {
+                console.log(error.message)
+            }
         }
+    },
 
-        socket.onmessage = (event) => {
-            const data = JSON.parse(event.data)
-            checkTypeMessage(data)
-        }
-
-        socket.onclose = () => {
-            console.log('Соединение закрыто')
-            this.init()
-        }
-
-        return socket
+    send: function (message){
+        socket.connect.send(JSON.stringify({
+            text: message
+        }))
     }
 }
-
-const socket = new ConnectWithServer().init()
 
 export default socket

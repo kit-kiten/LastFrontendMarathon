@@ -528,9 +528,9 @@ function hmrAcceptRun(bundle, id) {
 },{}],"kkGe5":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "createMessageElementUI", ()=>createMessageElementUI
-);
 parcelHelpers.export(exports, "checkTypeMessage", ()=>checkTypeMessage
+);
+parcelHelpers.export(exports, "createSomeoneMessageElementsUI", ()=>createSomeoneMessageElementsUI
 );
 var _viewMjs = require("./view.mjs");
 var _dateFns = require("date-fns");
@@ -538,7 +538,19 @@ var _jsCookie = require("js-cookie");
 var _jsCookieDefault = parcelHelpers.interopDefault(_jsCookie);
 var _socketMjs = require("./socket.mjs");
 var _socketMjsDefault = parcelHelpers.interopDefault(_socketMjs);
+var _modalWindowsMjs = require("./modal_windows.mjs");
+var _serverMjs = require("./server.mjs");
+var _errorsMjs = require("./errors.mjs");
 let amountVisibleMessages = 0;
+function renderHistoryMessages() {
+    _socketMjsDefault.default.init();
+    _serverMjs.SERVER.showHistoryMessages(20);
+}
+function loadPage() {
+    const tokenIsUndefined = _jsCookieDefault.default.get('token') === undefined;
+    if (tokenIsUndefined) _modalWindowsMjs.MODAL_WINDOWS.activeModalWindow(_viewMjs.UI_ELEMENTS.AUTHORIZATION);
+    else renderHistoryMessages();
+}
 function createMessageElementUI(data, sender, history) {
     const messageSubmit = document.querySelector('#message_submit');
     const li = document.createElement('li');
@@ -568,112 +580,58 @@ function createSomeoneMessageElementsUI(messages, amountMessages) {
         const data = messages[length - i - amountVisibleMessages];
         checkTypeMessage(data, true);
     }
-    amountVisibleMessages += 20;
+    amountVisibleMessages += amountMessages;
 }
-function activeModalWindow(modalWindow) {
-    modalWindow.BLOCK.style.display = 'flex';
-    _viewMjs.UI_ELEMENTS.BACKGROUND_MODAL_WINDOW.style.display = 'block';
-}
-function unActiveModalWindow(modalWindow) {
-    modalWindow.BLOCK.style.display = 'none';
-    modalWindow.INPUT.value = '';
-    _viewMjs.UI_ELEMENTS.BACKGROUND_MODAL_WINDOW.style.display = 'none';
-}
-async function showHistoryMessages(amountMessages) {
-    const URL = 'https://mighty-cove-31255.herokuapp.com/api/messages';
-    const token = _jsCookieDefault.default.get('token');
-    const response = await fetch(URL, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }
-    });
-    const { messages  } = await response.json();
-    createSomeoneMessageElementsUI(messages, amountMessages);
-}
-function sendMessage() {
-    _socketMjsDefault.default.send(JSON.stringify({
-        text: _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value
-    }));
-}
-document.addEventListener('DOMContentLoaded', ()=>{
-    const tokenIsUndefined = _jsCookieDefault.default.get('token') === undefined;
-    if (tokenIsUndefined) activeModalWindow(_viewMjs.UI_ELEMENTS.AUTHORIZATION);
-    else showHistoryMessages(20, true);
-});
-_viewMjs.UI_ELEMENTS.DIALOG.BUTTONS.BTN_SETTINGS.addEventListener('click', ()=>activeModalWindow(_viewMjs.UI_ELEMENTS.SETTINGS)
-);
-_viewMjs.UI_ELEMENTS.SETTINGS.BUTTONS.CLOSE.addEventListener('click', ()=>unActiveModalWindow(_viewMjs.UI_ELEMENTS.SETTINGS)
-);
-_viewMjs.UI_ELEMENTS.DIALOG.BUTTONS.BTN_EXIT.addEventListener('click', ()=>activeModalWindow(_viewMjs.UI_ELEMENTS.AUTHORIZATION)
-);
-_viewMjs.UI_ELEMENTS.AUTHORIZATION.BUTTONS.CLOSE.addEventListener('click', ()=>unActiveModalWindow(_viewMjs.UI_ELEMENTS.AUTHORIZATION)
-);
-_viewMjs.UI_ELEMENTS.ACCEPT.BUTTONS.CLOSE.addEventListener('click', ()=>unActiveModalWindow(_viewMjs.UI_ELEMENTS.ACCEPT)
-);
-_viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_FORM.addEventListener('submit', ()=>{
-    const isNotEmptyMessageInput = _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value !== '';
-    if (isNotEmptyMessageInput) sendMessage();
-    _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value = '';
-});
-_viewMjs.UI_ELEMENTS.DIALOG.MESSAGES_LIST.addEventListener('scroll', ()=>{
-    const scroll = _viewMjs.UI_ELEMENTS.DIALOG.MESSAGES_LIST;
-    if (scroll.scrollHeight + scroll.scrollTop - scroll.offsetHeight < 50) showHistoryMessages(20);
-});
-document.querySelector('.dialog__message-list').addEventListener('scroll', ()=>{});
-_viewMjs.UI_ELEMENTS.AUTHORIZATION.FORM.addEventListener('submit', ()=>{
-    const isNotEmptyAuthorizationInput = _viewMjs.UI_ELEMENTS.AUTHORIZATION.INPUT.value !== '';
-    if (isNotEmptyAuthorizationInput) {
-        const URL = 'https://mighty-cove-31255.herokuapp.com/api/user';
-        const response = fetch(URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email: 'malysnikitaenko@gmail.com'
-            })
-        });
-        _jsCookieDefault.default.set('email', _viewMjs.UI_ELEMENTS.AUTHORIZATION.INPUT.value);
-        activeModalWindow(_viewMjs.UI_ELEMENTS.ACCEPT);
-    }
-});
-_viewMjs.UI_ELEMENTS.ACCEPT.FORM.addEventListener('submit', ()=>{
+function authorization() {
     const isNotEmptyAcceptInput = _viewMjs.UI_ELEMENTS.ACCEPT.INPUT.value !== '';
     if (isNotEmptyAcceptInput) {
         _jsCookieDefault.default.set('token', _viewMjs.UI_ELEMENTS.ACCEPT.INPUT.value);
-        showHistoryMessages(20);
-        unActiveModalWindow(_viewMjs.UI_ELEMENTS.ACCEPT);
-        unActiveModalWindow(_viewMjs.UI_ELEMENTS.AUTHORIZATION);
+        renderHistoryMessages();
+        _modalWindowsMjs.MODAL_WINDOWS.unActiveModalWindow(_viewMjs.UI_ELEMENTS.ACCEPT);
+        _modalWindowsMjs.MODAL_WINDOWS.unActiveModalWindow(_viewMjs.UI_ELEMENTS.AUTHORIZATION);
+    }
+}
+function sendMessage() {
+    const isNotEmptyMessageInput = _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value !== '';
+    if (isNotEmptyMessageInput) _socketMjsDefault.default.send(_viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value);
+    _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_INPUT.value = '';
+}
+function addMessagesByScroll() {
+    const scroll = _viewMjs.UI_ELEMENTS.DIALOG.MESSAGES_LIST;
+    if (scroll.scrollHeight + scroll.scrollTop - scroll.offsetHeight < 50) _serverMjs.SERVER.showHistoryMessages(20);
+}
+document.addEventListener('DOMContentLoaded', ()=>loadPage()
+);
+_viewMjs.UI_ELEMENTS.DIALOG.BUTTONS.BTN_SETTINGS.addEventListener('click', ()=>_modalWindowsMjs.MODAL_WINDOWS.activeModalWindow(_viewMjs.UI_ELEMENTS.SETTINGS)
+);
+_viewMjs.UI_ELEMENTS.SETTINGS.BUTTONS.CLOSE.addEventListener('click', ()=>_modalWindowsMjs.MODAL_WINDOWS.unActiveModalWindow(_viewMjs.UI_ELEMENTS.SETTINGS)
+);
+_viewMjs.UI_ELEMENTS.DIALOG.BUTTONS.BTN_EXIT.addEventListener('click', ()=>_modalWindowsMjs.MODAL_WINDOWS.activeModalWindow(_viewMjs.UI_ELEMENTS.AUTHORIZATION)
+);
+_viewMjs.UI_ELEMENTS.AUTHORIZATION.BUTTONS.CLOSE.addEventListener('click', ()=>_modalWindowsMjs.MODAL_WINDOWS.unActiveModalWindow(_viewMjs.UI_ELEMENTS.AUTHORIZATION)
+);
+_viewMjs.UI_ELEMENTS.ACCEPT.BUTTONS.CLOSE.addEventListener('click', ()=>_modalWindowsMjs.MODAL_WINDOWS.unActiveModalWindow(_viewMjs.UI_ELEMENTS.ACCEPT)
+);
+_viewMjs.UI_ELEMENTS.MODAL_WINDOWS.addEventListener('click', (event)=>_modalWindowsMjs.MODAL_WINDOWS.closeModalWindow(event)
+);
+_viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_FORM.addEventListener('submit', ()=>sendMessage()
+);
+_viewMjs.UI_ELEMENTS.DIALOG.MESSAGES_LIST.addEventListener('scroll', ()=>addMessagesByScroll()
+);
+_viewMjs.UI_ELEMENTS.AUTHORIZATION.FORM.addEventListener('submit', ()=>{
+    try {
+        _serverMjs.SERVER.sendCodeAnEmail();
+    } catch (err) {
+        if (err instanceof _errorsMjs.EmailError) console.log('Неккоректный email');
+        else throw err;
     }
 });
-_viewMjs.UI_ELEMENTS.SETTINGS.FORM.addEventListener('submit', ()=>{
-    const isNotEmptySettingsInput = _viewMjs.UI_ELEMENTS.SETTINGS.INPUT.value !== '';
-    if (isNotEmptySettingsInput) {
-        const token = _jsCookieDefault.default.get('token');
-        const URL = 'https://mighty-cove-31255.herokuapp.com/api/user';
-        const response = fetch(URL, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                name: _viewMjs.UI_ELEMENTS.SETTINGS.INPUT.value
-            })
-        });
-    }
-});
-_viewMjs.UI_ELEMENTS.MODAL_WINDOWS.addEventListener('click', (event)=>{
-    const isModalWindow = event.target.classList.contains('modal-window');
-    if (isModalWindow) {
-        event.target.style.display = 'none';
-        _viewMjs.UI_ELEMENTS.BACKGROUND_MODAL_WINDOW.style.display = 'none';
-    }
-});
+_viewMjs.UI_ELEMENTS.ACCEPT.FORM.addEventListener('submit', ()=>authorization()
+);
+_viewMjs.UI_ELEMENTS.SETTINGS.FORM.addEventListener('submit', ()=>_serverMjs.SERVER.changeName()
+);
 
-},{"./view.mjs":"i1yN4","date-fns":"9yHCA","js-cookie":"c8bBu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./socket.mjs":"fe8Wc"}],"i1yN4":[function(require,module,exports) {
+},{"./view.mjs":"i1yN4","date-fns":"9yHCA","js-cookie":"c8bBu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./socket.mjs":"fe8Wc","./modal_windows.mjs":"i4VTQ","./server.mjs":"hmVph","./errors.mjs":"iiwUS"}],"i1yN4":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "UI_ELEMENTS", ()=>UI_ELEMENTS
@@ -3858,28 +3816,134 @@ parcelHelpers.defineInteropFlag(exports);
 var _jsCookie = require("js-cookie");
 var _jsCookieDefault = parcelHelpers.interopDefault(_jsCookie);
 var _mainMjs = require("./main.mjs");
-function ConnectWithServer() {
-    this.init = function() {
+const socket = {
+    connect: undefined,
+    init: function() {
         const token = _jsCookieDefault.default.get('token');
         const URL = `ws://mighty-cove-31255.herokuapp.com/websockets?${token}`;
-        const socket1 = new WebSocket(URL);
-        socket1.onopen = ()=>{
-            console.log('Связь с сервером установлена');
-        };
-        socket1.onmessage = (event)=>{
-            const data = JSON.parse(event.data);
-            _mainMjs.checkTypeMessage(data);
-        };
-        socket1.onclose = ()=>{
-            console.log('Соединение закрыто');
-            this.init();
-        };
-        return socket1;
-    };
-}
-const socket = new ConnectWithServer().init();
+        if (token) {
+            socket.connect = new WebSocket(URL);
+            socket.connect.onopen = ()=>{
+                console.log('Связь с сервером установлена');
+            };
+            socket.connect.onmessage = (event)=>{
+                const data = JSON.parse(event.data);
+                _mainMjs.checkTypeMessage(data);
+            };
+            socket.connect.onclose = ()=>{
+                console.log('Соединение закрыто');
+                socket.init();
+            };
+            socket.connect.onerror = (error)=>{
+                console.log(error.message);
+            };
+        }
+    },
+    send: function(message) {
+        socket.connect.send(JSON.stringify({
+            text: message
+        }));
+    }
+};
 exports.default = socket;
 
-},{"js-cookie":"c8bBu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./main.mjs":"kkGe5"}]},["cRlMu","kkGe5"], "kkGe5", "parcelRequire25d8")
+},{"js-cookie":"c8bBu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./main.mjs":"kkGe5"}],"i4VTQ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "MODAL_WINDOWS", ()=>MODAL_WINDOWS
+);
+var _viewMjs = require("./view.mjs");
+const MODAL_WINDOWS = {
+    activeModalWindow: function(modalWindow) {
+        modalWindow.BLOCK.style.display = 'flex';
+        _viewMjs.UI_ELEMENTS.BACKGROUND_MODAL_WINDOW.style.display = 'block';
+    },
+    unActiveModalWindow: function(modalWindow) {
+        modalWindow.BLOCK.style.display = 'none';
+        modalWindow.INPUT.value = '';
+        _viewMjs.UI_ELEMENTS.BACKGROUND_MODAL_WINDOW.style.display = 'none';
+    },
+    closeModalWindow: function(event) {
+        const isModalWindow = event.target.classList.contains('modal-window');
+        if (isModalWindow) {
+            event.target.style.display = 'none';
+            _viewMjs.UI_ELEMENTS.BACKGROUND_MODAL_WINDOW.style.display = 'none';
+        }
+    }
+};
+
+},{"./view.mjs":"i1yN4","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hmVph":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "SERVER", ()=>SERVER
+);
+var _viewMjs = require("./view.mjs");
+var _jsCookie = require("js-cookie");
+var _jsCookieDefault = parcelHelpers.interopDefault(_jsCookie);
+var _modalWindowsMjs = require("./modal_windows.mjs");
+var _mainMjs = require("./main.mjs");
+var _errorsMjs = require("./errors.mjs");
+const SERVER = {
+    sendCodeAnEmail: async function() {
+        const URL = 'https://mighty-cove-31255.herokuapp.com/api/user';
+        const response = await fetch(URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: _viewMjs.UI_ELEMENTS.AUTHORIZATION.INPUT.value
+            })
+        });
+        if (response.ok) {
+            _jsCookieDefault.default.set('email', _viewMjs.UI_ELEMENTS.AUTHORIZATION.INPUT.value);
+            _modalWindowsMjs.MODAL_WINDOWS.activeModalWindow(_viewMjs.UI_ELEMENTS.ACCEPT);
+        } else throw new _errorsMjs.EmailError('Некорректный email');
+    },
+    changeName: async function() {
+        const isNotEmptySettingsInput = _viewMjs.UI_ELEMENTS.SETTINGS.INPUT.value !== '';
+        if (isNotEmptySettingsInput) {
+            const token = _jsCookieDefault.default.get('token');
+            const URL = 'https://mighty-cove-31255.herokuapp.com/api/user';
+            await fetch(URL, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    name: _viewMjs.UI_ELEMENTS.SETTINGS.INPUT.value
+                })
+            });
+        }
+    },
+    showHistoryMessages: async function(amountMessages) {
+        const URL = 'https://mighty-cove-31255.herokuapp.com/api/messages';
+        const token = _jsCookieDefault.default.get('token');
+        const response = await fetch(URL, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        const { messages  } = await response.json();
+        _mainMjs.createSomeoneMessageElementsUI(messages, amountMessages);
+    }
+};
+
+},{"./view.mjs":"i1yN4","js-cookie":"c8bBu","./modal_windows.mjs":"i4VTQ","./main.mjs":"kkGe5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./errors.mjs":"iiwUS"}],"iiwUS":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "EmailError", ()=>EmailError
+);
+class EmailError extends Error {
+    constructor(message){
+        super(message);
+        this.name = 'EmailError';
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["cRlMu","kkGe5"], "kkGe5", "parcelRequire25d8")
 
 //# sourceMappingURL=index.c09717c5.js.map
