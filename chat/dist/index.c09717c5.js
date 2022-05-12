@@ -528,6 +528,8 @@ function hmrAcceptRun(bundle, id) {
 },{}],"kkGe5":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "checkToken", ()=>checkToken
+);
 parcelHelpers.export(exports, "checkTypeMessage", ()=>checkTypeMessage
 );
 parcelHelpers.export(exports, "createSomeoneMessageElementsUI", ()=>createSomeoneMessageElementsUI
@@ -542,9 +544,12 @@ var _modalWindowsMjs = require("./modal_windows.mjs");
 var _serverMjs = require("./server.mjs");
 var _errorsMjs = require("./errors.mjs");
 let amountVisibleMessages = 0;
+function checkToken() {
+    const token = _jsCookieDefault.default.get('token');
+    if (token) _serverMjs.SERVER.showHistoryMessages(20);
+}
 function renderHistoryMessages() {
     _socketMjsDefault.default.init();
-    _serverMjs.SERVER.showHistoryMessages(20);
 }
 function loadPage() {
     const tokenIsUndefined = _jsCookieDefault.default.get('token') === undefined;
@@ -618,12 +623,14 @@ _viewMjs.UI_ELEMENTS.DIALOG.MESSAGE_FORM.addEventListener('submit', ()=>sendMess
 );
 _viewMjs.UI_ELEMENTS.DIALOG.MESSAGES_LIST.addEventListener('scroll', ()=>addMessagesByScroll()
 );
-_viewMjs.UI_ELEMENTS.AUTHORIZATION.FORM.addEventListener('submit', ()=>{
+_viewMjs.UI_ELEMENTS.AUTHORIZATION.FORM.addEventListener('submit', async ()=>{
     try {
-        _serverMjs.SERVER.sendCodeAnEmail();
+        await _serverMjs.SERVER.sendCodeAnEmail();
     } catch (err) {
-        if (err instanceof _errorsMjs.EmailError) console.log('Неккоректный email');
-        else throw err;
+        if (err instanceof _errorsMjs.EmailError) {
+            alert('Введите корректный email');
+            _viewMjs.UI_ELEMENTS.AUTHORIZATION.INPUT.value = '';
+        } else throw err;
     }
 });
 _viewMjs.UI_ELEMENTS.ACCEPT.FORM.addEventListener('submit', ()=>authorization()
@@ -3816,6 +3823,8 @@ parcelHelpers.defineInteropFlag(exports);
 var _jsCookie = require("js-cookie");
 var _jsCookieDefault = parcelHelpers.interopDefault(_jsCookie);
 var _mainMjs = require("./main.mjs");
+var _modalWindowsMjs = require("./modal_windows.mjs");
+var _viewMjs = require("./view.mjs");
 const socket = {
     connect: undefined,
     init: function() {
@@ -3827,8 +3836,19 @@ const socket = {
                 console.log('Связь с сервером установлена');
             };
             socket.connect.onmessage = (event)=>{
-                const data = JSON.parse(event.data);
-                _mainMjs.checkTypeMessage(data);
+                try {
+                    const data = JSON.parse(event.data);
+                    _mainMjs.checkTypeMessage(data);
+                } catch (err) {
+                    if (err instanceof SyntaxError) {
+                        alert('Неверный токен!');
+                        _jsCookieDefault.default.remove('token', {
+                            path: ''
+                        });
+                        _modalWindowsMjs.MODAL_WINDOWS.activeModalWindow(_viewMjs.UI_ELEMENTS.AUTHORIZATION);
+                    }
+                }
+                _mainMjs.checkToken();
             };
             socket.connect.onclose = ()=>{
                 console.log('Соединение закрыто');
@@ -3847,7 +3867,7 @@ const socket = {
 };
 exports.default = socket;
 
-},{"js-cookie":"c8bBu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./main.mjs":"kkGe5"}],"i4VTQ":[function(require,module,exports) {
+},{"js-cookie":"c8bBu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./main.mjs":"kkGe5","./modal_windows.mjs":"i4VTQ","./view.mjs":"i1yN4"}],"i4VTQ":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "MODAL_WINDOWS", ()=>MODAL_WINDOWS
@@ -3905,7 +3925,7 @@ const SERVER = {
         if (isNotEmptySettingsInput) {
             const token = _jsCookieDefault.default.get('token');
             const URL = 'https://mighty-cove-31255.herokuapp.com/api/user';
-            await fetch(URL, {
+            if (token) await fetch(URL, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -3915,6 +3935,11 @@ const SERVER = {
                     name: _viewMjs.UI_ELEMENTS.SETTINGS.INPUT.value
                 })
             });
+            else {
+                alert('Вы не авторизованы!');
+                _modalWindowsMjs.MODAL_WINDOWS.unActiveModalWindow(_viewMjs.UI_ELEMENTS.SETTINGS);
+                _modalWindowsMjs.MODAL_WINDOWS.activeModalWindow(_viewMjs.UI_ELEMENTS.AUTHORIZATION);
+            }
         }
     },
     showHistoryMessages: async function(amountMessages) {
@@ -3932,7 +3957,7 @@ const SERVER = {
     }
 };
 
-},{"./view.mjs":"i1yN4","js-cookie":"c8bBu","./modal_windows.mjs":"i4VTQ","./main.mjs":"kkGe5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./errors.mjs":"iiwUS"}],"iiwUS":[function(require,module,exports) {
+},{"./view.mjs":"i1yN4","js-cookie":"c8bBu","./modal_windows.mjs":"i4VTQ","./main.mjs":"kkGe5","./errors.mjs":"iiwUS","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"iiwUS":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "EmailError", ()=>EmailError

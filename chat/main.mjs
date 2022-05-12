@@ -8,9 +8,15 @@ import {EmailError} from "./errors.mjs";
 
 let amountVisibleMessages = 0
 
+export function checkToken(){
+    const token = Cookies.get('token')
+    if (token){
+        SERVER.showHistoryMessages(20)
+    }
+}
+
 function renderHistoryMessages(){
     socket.init()
-    SERVER.showHistoryMessages(20)
 }
 
 function loadPage(){
@@ -113,12 +119,13 @@ UI_ELEMENTS.DIALOG.MESSAGE_FORM.addEventListener('submit', () => sendMessage())
 
 UI_ELEMENTS.DIALOG.MESSAGES_LIST.addEventListener('scroll', () => addMessagesByScroll())
 
-UI_ELEMENTS.AUTHORIZATION.FORM.addEventListener('submit', () => {
+UI_ELEMENTS.AUTHORIZATION.FORM.addEventListener('submit', async() => {
     try{
-        SERVER.sendCodeAnEmail()
+        await SERVER.sendCodeAnEmail()
     } catch (err){
         if (err instanceof EmailError){
-            console.log('Неккоректный email')
+            alert('Введите корректный email')
+            UI_ELEMENTS.AUTHORIZATION.INPUT.value = ''
         } else {
             throw err
         }

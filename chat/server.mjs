@@ -30,14 +30,20 @@ export const SERVER = {
             const token = Cookies.get('token')
             const URL = 'https://mighty-cove-31255.herokuapp.com/api/user'
 
-            await fetch(URL, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({name: UI_ELEMENTS.SETTINGS.INPUT.value})
-            })
+            if (token){
+                await fetch(URL, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({name: UI_ELEMENTS.SETTINGS.INPUT.value})
+                })
+            } else{
+                alert('Вы не авторизованы!')
+                MODAL_WINDOWS.unActiveModalWindow(UI_ELEMENTS.SETTINGS)
+                MODAL_WINDOWS.activeModalWindow(UI_ELEMENTS.AUTHORIZATION)
+            }
         }
     },
 
