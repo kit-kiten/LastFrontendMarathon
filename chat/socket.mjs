@@ -1,5 +1,5 @@
 import Cookies from "js-cookie";
-import {checkToken, checkTypeMessage} from "./main.mjs";
+import {checkTypeMessage} from "./main.mjs";
 import {MODAL_WINDOWS} from "./modal_windows.mjs";
 import {UI_ELEMENTS} from "./view.mjs";
 
@@ -28,7 +28,6 @@ const socket = {
                         MODAL_WINDOWS.activeModalWindow(UI_ELEMENTS.AUTHORIZATION)
                     }
                 }
-                checkToken()
             }
 
             socket.connect.onclose = () => {

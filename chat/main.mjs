@@ -8,20 +8,22 @@ import {EmailError} from "./errors.mjs";
 
 let amountVisibleMessages = 0
 
-export function checkToken(){
-    const token = Cookies.get('token')
-    if (token){
-        SERVER.showHistoryMessages(20)
-    }
-}
+// export function checkToken(){
+//     const tokenIsUndefined = Cookies.get('token') === undefined
+//     if (tokenIsUndefined){
+//         MODAL_WINDOWS.activeModalWindow(UI_ELEMENTS.AUTHORIZATION)
+//     } else{
+//         renderHistoryMessages()
+//     }
+// }
 
 function renderHistoryMessages(){
-    socket.init()
+    SERVER.showHistoryMessages(20)
 }
 
 function loadPage(){
+    socket.init()
     const tokenIsUndefined = Cookies.get('token') === undefined
-
     if (tokenIsUndefined){
         MODAL_WINDOWS.activeModalWindow(UI_ELEMENTS.AUTHORIZATION)
     } else{
@@ -78,9 +80,9 @@ function authorization(){
     if (isNotEmptyAcceptInput){
         Cookies.set('token', UI_ELEMENTS.ACCEPT.INPUT.value)
 
-        renderHistoryMessages()
         MODAL_WINDOWS.unActiveModalWindow(UI_ELEMENTS.ACCEPT)
         MODAL_WINDOWS.unActiveModalWindow(UI_ELEMENTS.AUTHORIZATION)
+        loadPage()
     }
 }
 
