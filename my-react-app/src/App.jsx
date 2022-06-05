@@ -3,11 +3,6 @@ import React from "react";
 
 const serverUrl =  'https://api.genderize.io'
 
-function showResult(result){
-  const resultOutput = document.querySelector('.result')
-  resultOutput.textContent = result
-}
-
 function Main(props) {
   return(
       <input onChange={props.onСhangeInputState} className={"main-input"} placeholder="Enter name:" />
@@ -20,16 +15,19 @@ function Button() {
   )
 }
 
-function TextOutput() {
+function TextOutput(props) {
   return(
-      <p className={"result"}>Here will be result...</p>
+      <p className={"result"}>{props.value}</p>
   )
 }
 
 class App extends React.Component{
   constructor(props) {
     super(props)
-    this.state = {inputName: ''}
+    this.state = {
+                    inputName: '',
+                    result: 'Here will be result...'
+                 }
     this.submitOnServer = this.submitOnServer.bind(this)
     this.handleChange = this.handleChange.bind(this)
   }
@@ -44,7 +42,9 @@ class App extends React.Component{
       const responseToJson = await response.json()
       const gender = await responseToJson.gender
 
-      showResult(`${firstName}: ${gender}`)
+      this.setState({
+        result: `${firstName}: ${gender}`
+      })
     } catch (err){
       console.log(err)
     }
@@ -61,7 +61,7 @@ class App extends React.Component{
         <form onSubmit={this.submitOnServer} className={"wrapper"}>
           <Main onСhangeInputState={this.handleChange} />
           <Button/>
-          <TextOutput/>
+          <TextOutput value={this.state.result}/>
         </form>
     )
   }
