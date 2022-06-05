@@ -5,7 +5,7 @@ const serverUrl =  'https://api.genderize.io'
 
 function Main(props) {
   return(
-      <input onChange={props.onСhangeInputState} className={"main-input"} placeholder="Enter name:" />
+      <input onChange={props.onСhangeInputState} value={props.value} className={"main-input"} placeholder="Enter name:" />
   )
 }
 
@@ -43,6 +43,7 @@ class App extends React.Component{
       const gender = await responseToJson.gender
 
       this.setState({
+        inputName: '',
         result: `${firstName}: ${gender}`
       })
     } catch (err){
@@ -59,7 +60,7 @@ class App extends React.Component{
   render() {
     return(
         <form onSubmit={this.submitOnServer} className={"wrapper"}>
-          <Main onСhangeInputState={this.handleChange} />
+          <Main onСhangeInputState={this.handleChange} value={this.state.inputName} />
           <Button/>
           <TextOutput value={this.state.result}/>
         </form>
