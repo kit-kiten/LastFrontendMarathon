@@ -8,40 +8,22 @@ function showResult(result){
   resultOutput.textContent = result
 }
 
-class Main extends React.Component{
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return(
-        <input onChange={this.props.onСhangeInputState} className={"main-input"} placeholder="Enter name:" />
-    )
-  }
+function Main(props) {
+  return(
+      <input onChange={props.onСhangeInputState} className={"main-input"} placeholder="Enter name:" />
+  )
 }
 
-class Button extends React.Component{
-  constructor(props) {
-    super(props);
-  }
-
-  render(){
-    return(
-        <button className={"btn"}>Check sex by name</button>
-    )
-  }
+function Button() {
+  return(
+      <button className={"btn"}>Check sex by name</button>
+  )
 }
 
-class TextOutput extends React.Component{
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return(
-        <p className={"result"}>Here will be result...</p>
-    )
-  }
+function TextOutput() {
+  return(
+      <p className={"result"}>Here will be result...</p>
+  )
 }
 
 class App extends React.Component{
@@ -52,14 +34,20 @@ class App extends React.Component{
     this.handleChange = this.handleChange.bind(this)
   }
 
-  submitOnServer(e){
+  async submitOnServer(e){
     e.preventDefault()
     const firstName = this.state.inputName
 
     const fullUrl = `${serverUrl}?name=${firstName}`
-    fetch(fullUrl)
-        .then(response => response.json())
-        .then(result => showResult(`${firstName} - ${result.gender}`))
+    try {
+      const response = await fetch(fullUrl)
+      const responseToJson = await response.json()
+      const gender = await responseToJson.gender
+
+      showResult(`${firstName}: ${gender}`)
+    } catch (err){
+      console.log(err)
+    }
   }
 
   handleChange(e){
