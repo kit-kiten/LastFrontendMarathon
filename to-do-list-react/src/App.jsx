@@ -1,80 +1,118 @@
 import { useState } from 'react'
 import './App.css'
 
-function Task() {
-  return (
-      <li className={'main-task'}>
-         <div className="main-task__box">
-             <span className="main-task__checkbox"></span>
-         </div>
-         <p className="main-task__text">Таск</p>
-         <input className="main-task__btn" type="button" />
-      </li>
-  )
-}
-
-function List(props) {
-  return (
-      <ul className={'task-list'}>
-        {props.children}
-      </ul>
-  )
-}
-
-function Header(props) {
-    const [currentInput, setCurrentInput] = useState('')
-
-    function changeInput(e){
-        setCurrentInput(e.target.value)
-        console.log(currentInput)
+function Task({ task, changeTaskList }) {
+    function handleClick(e) {
+        e.target.parentElement.remove()
+        changeTaskList(task);
     }
 
     return (
-       <form className="main-form">
-          <div className="main-new_task">
-            <input className="main-new_task__text" type="text" placeholder={props.placeholder_value} onChange={changeInput}/>
-            <button className="main-new_task__btn" type="submit"></button>
-          </div>
-       </form>
+        <li className={'main-task'}>
+            <div className="main-task__box">
+                <span className="main-task__checkbox"></span>
+            </div>
+            <p className="main-task__text">
+                {task}
+            </p>
+            <input className="main-task__btn" type="button" onClick={handleClick}/>
+        </li>
     )
 }
 
-function Title(props) {
-  return (
-      <h2 className="main__title">{props.status}</h2>
-  )
+function List({ taskList, changeTaskList }) {
+
+    const tasksList = taskList.map((task, index) => {
+        return (
+            <Task
+                key={index}
+                task={task}
+                changeTaskList={changeTaskList}
+            />
+        )
+    });
+    return (
+        <ul className={'task-list'}>
+            {tasksList}
+        </ul>
+    )
 }
 
-function Form(props) {
+function Header({ placeholder_value, changeTaskList }) {
+    const [currentInput, setCurrentInput] = useState('')
+
+    function changeInput(e) {
+        setCurrentInput(e.target.value);
+    }
+
+    function handleSubmit(e) {
+        e.preventDefault();
+        setCurrentInput('');
+        changeTaskList(currentInput);
+    }
+
+    return (
+        <form className="main-form" onSubmit={handleSubmit}>
+            <div className="main-new_task">
+                <input className="main-new_task__text" type="text" value={currentInput} placeholder={placeholder_value} onChange={changeInput} />
+                <button className="main-new_task__btn" type="submit"></button>
+            </div>
+        </form>
+    )
+}
+
+function Title({ status }) {
+    return (
+        <h2 className="main__title">{status}</h2>
+    )
+}
+
+function Form({status, placeholder_value}) {
+    const [list, setList] = useState([]);
+
+    function addTask(newTask) {
+        setList([...list, newTask]);
+        console.log(list)
+    }
+
+    function deleteTask(task) {
+        const indexTask = list.findIndex(item => item === task)
+
+        if (indexTask !== -1) {
+            setList(list.splice(indexTask, 1))
+        }
+
+        console.log(list)
+    }
+
     return (
         <div>
-            <Title status={props.status} />
-            <Header placeholder_value={props.placeholder_value} onSubmit={props.changeTaskList}/>
-            <List>
-                <Task />
-                <Task />
-            </List>
+            <Title status={status} />
+            <Header placeholder_value={placeholder_value} changeTaskList={addTask} />
+            <List
+                taskList={list}
+                changeTaskList={deleteTask}
+            />
         </div>
     )
 }
 
 function App() {
-    const [list, setList] = useState([])
-
-    function addTask(e){
-        e.preventDefault()
-        setList(e.target.value)
-        console.log(list)
-    }
 
     return (
-       <main className="main">
-          <div className="container">
-              <Form status={'high'} placeholder_value={'Добавить важных дел'} changeTaskList={addTask} />
-              <Form status={'low'} placeholder_value={'Добавить'} changeTaskList={addTask}/>
-          </div>
-       </main>
+        <main className="main">
+            <div className="container">
+                <Form
+                    status={'high'}
+                    placeholder_value={'Добавить важных дел'}
+                />
+                <Form
+                    status={'low'}
+                    placeholder_value={'Добавить'}
+                />
+            </div>
+        </main>
     )
 }
 
-export default App
+export default App;
