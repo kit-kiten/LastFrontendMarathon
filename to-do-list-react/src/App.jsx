@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import './App.css'
 
-function Task({ task, changeTaskList }) {
+function Task({ task, changeTaskList, id }) {
     function handleClick(e) {
-        e.target.parentElement.remove()
-        changeTaskList(task);
+        changeTaskList(e.target.id);
     }
 
     return (
@@ -15,7 +14,7 @@ function Task({ task, changeTaskList }) {
             <p className="main-task__text">
                 {task}
             </p>
-            <input className="main-task__btn" type="button" onClick={handleClick}/>
+            <input className="main-task__btn" type="button" id={id} onClick={handleClick}/>
         </li>
     )
 }
@@ -27,6 +26,7 @@ function List({ taskList, changeTaskList }) {
             <Task
                 key={index}
                 task={task}
+                id={index}
                 changeTaskList={changeTaskList}
             />
         )
@@ -76,11 +76,7 @@ function Form({status, placeholder_value}) {
     }
 
     function deleteTask(task) {
-        const indexTask = list.findIndex(item => item === task)
-
-        if (indexTask !== -1) {
-            setList(list.splice(indexTask, 1))
-        }
+        setList(list.splice(task, 1))
 
         console.log(list)
     }
