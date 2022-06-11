@@ -59,7 +59,7 @@ class App extends React.Component{
 
   render() {
     return(
-        <form onSubmit={this.submitOnServer} className={"wrapper"}>
+        <form onSubmit={this.state.inputName.length > 2 ? this.submitOnServer : console.log('Error')} className={"wrapper"}>
           <Main onСhangeInputState={this.handleChange} value={this.state.inputName} />
           <Button/>
           <TextOutput value={this.state.result}/>
