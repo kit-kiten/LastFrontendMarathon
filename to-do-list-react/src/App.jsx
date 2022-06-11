@@ -2,14 +2,20 @@ import { useState } from 'react'
 import './App.css'
 
 function Task({ task, changeTaskList, id }) {
+    const[liClass, setLiClass] = useState('main-task')
+
     function handleClick(e) {
         changeTaskList(e.target.id);
     }
 
+    function changeReadiness() {
+        liClass === 'main-task' ? setLiClass('main-task main-task--done') : setLiClass('main-task')
+    }
+
     return (
-        <li className={'main-task'}>
+        <li className={liClass}>
             <div className="main-task__box">
-                <span className="main-task__checkbox"></span>
+                <span className="main-task__checkbox" onClick={changeReadiness}></span>
             </div>
             <p className="main-task__text">
                 {task}
@@ -76,7 +82,8 @@ function Form({status, placeholder_value}) {
     }
 
     function deleteTask(task) {
-        setList(list.splice(task, 1))
+        list.splice(task, 1)
+        setList([...list])
 
         console.log(list)
     }
